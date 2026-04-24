@@ -20,19 +20,21 @@ Tracks completion of the steps in `PLAN.md` §9.
 
 ## Step 2 — Core types
 
-- [ ] `src/transport.ts` — `Transport` interface (with BLE buffering note)
-- [ ] `src/media.ts` — `MediaDescriptor` (heightMm optional, type is string)
-- [ ] `src/status.ts` — `PrinterStatus` (detectedMedia only), `PrintOptions`, `PrinterError`
-- [ ] `src/device.ts` — `DeviceDescriptor` (vid/pid optional), `TransportType`, `BluetoothConfig`
-- [ ] `src/discovery.ts` — `PrinterDiscovery`, `DiscoveredPrinter`, `OpenOptions`
-- [ ] `src/bitmap.ts` — re-export `LabelBitmap`, `RawImageData`
-- [ ] Gate: typecheck + build
-- [ ] Commit + push
+- [x] `src/transport.ts` — `Transport` interface (with BLE buffering note)
+- [x] `src/media.ts` — `MediaDescriptor` (heightMm optional, type is string)
+- [x] `src/status.ts` — `PrinterStatus` (detectedMedia only), `PrintOptions`, `PrinterError`
+- [x] `src/device.ts` — `DeviceDescriptor` (vid/pid optional), `TransportType`, `BluetoothConfig`
+- [x] `src/bitmap.ts` — re-export `LabelBitmap`, `RawImageData`
+- [x] Gate: typecheck + build
+- [x] Commit + push
 
-## Step 3 — Adapter and preview types
+> `discovery.ts` was moved to Step 3 — see DECISIONS.md D7.
+
+## Step 3 — Adapter, preview, and discovery types
 
 - [ ] `src/adapter.ts` — `PrinterAdapter` (with `device?`, `print` takes `RawImageData` + optional media)
 - [ ] `src/preview.ts` — `PreviewOptions` (media only), `PreviewResult`, `PreviewPlane`
+- [ ] `src/discovery.ts` — `PrinterDiscovery`, `DiscoveredPrinter`, `OpenOptions`
 - [ ] Gate: typecheck + build
 - [ ] Commit + push
 

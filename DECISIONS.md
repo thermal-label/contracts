@@ -66,7 +66,20 @@ the public npm registry. The operator is not available to approve it
 this session. See `BLOCKERS.md` for the hand-off. Everything else that
 can be done locally is done.
 
-## D7 — `release.yml` uses trusted publishing
+## D7 — `discovery.ts` moved from Step 2 to Step 3
+
+**Plan said:** `src/discovery.ts` lives in Step 2.
+**Chose:** moved it to Step 3 alongside `adapter.ts` and `preview.ts`.
+
+**Why:** `PrinterDiscovery.openPrinter()` returns `Promise<PrinterAdapter>`,
+so `discovery.ts` has a hard type dependency on `adapter.ts`. The plan
+puts adapter in Step 3, so discovery can't typecheck in Step 2 without
+a forward stub. Cleaner to co-locate them in Step 3.
+
+Step 2 gate remains "typecheck + build" — just over a smaller set of
+files. Step 3 gate picks up discovery in addition to adapter/preview.
+
+## D8 — `release.yml` uses trusted publishing
 
 **Plan said:** "standard npm trusted publishing".
 **Chose:** `pnpm publish --provenance --access public` triggered by
