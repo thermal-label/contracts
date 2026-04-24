@@ -79,30 +79,26 @@ a forward stub. Cleaner to co-locate them in Step 3.
 Step 2 gate remains "typecheck + build" — just over a smaller set of
 files. Step 3 gate picks up discovery in addition to adapter/preview.
 
-## D9 — Disable `import-x/consistent-type-specifier-style`
+## D9 — Disable `import-x/consistent-type-specifier-style` (RESOLVED in 1.0.1)
 
-**Plan said:** use `@mbtech-nl/eslint-config` as-is.
-**Chose:** override `import-x/consistent-type-specifier-style: off` in
-`eslint.config.js`.
-
-**Why:** The shared config enables two rules that contradict each other
-for pure type-only imports:
+**Historical context:** `@mbtech-nl/eslint-config@1.0.0` shipped two
+rules that contradicted each other for pure type-only imports:
 
 - `@typescript-eslint/no-import-type-side-effects: error` — forbids
   inline `import { type X }` for type-only imports because with
-  `verbatimModuleSyntax: true` it leaves behind an empty runtime
-  `import {}` statement (a side-effect import).
+  `verbatimModuleSyntax: true` it leaves an empty runtime `import {}`
+  behind (a side-effect import).
 - `import-x/consistent-type-specifier-style: prefer-inline` — forces
   inline `import { type X }` for every type import.
 
-For files that import *only* types, these can't both be satisfied. The
-first rule guards against an actual emitted runtime side effect; the
-second is stylistic. Disabling the stylistic one is the right trade.
+For files importing only types, these couldn't both be satisfied.
+We worked around it with a local `'import-x/consistent-type-specifier-style': 'off'`
+override.
 
-Mixed imports still use inline `{ foo, type Bar }` because
-`@typescript-eslint/consistent-type-imports` still enforces that.
-
-Should be upstreamed into `@mbtech-nl/eslint-config` as a proper fix.
+**Resolution:** `@mbtech-nl/eslint-config@1.0.1` (plus matching
+`@mbtech-nl/prettier-config@1.0.1` and `@mbtech-nl/tsconfig@1.0.1`)
+fixes the conflict upstream. Lockfile bumped; the local override has
+been removed — `eslint.config.js` is back to a plain re-export.
 
 ## D10 — `release.yml` uses trusted publishing
 

@@ -9,18 +9,18 @@ importers:
   .:
     dependencies:
       '@mbtech-nl/bitmap':
-        specifier: ^1.0.0
+        specifier: ^1.0.1
         version: 1.0.1
     devDependencies:
       '@mbtech-nl/eslint-config':
-        specifier: ^1.0.0
-        version: 1.0.0(@typescript-eslint/utils@8.59.0(eslint@9.39.4)(typescript@5.5.4))(eslint@9.39.4)(typescript@5.5.4)
+        specifier: ^1.0.1
+        version: 1.0.1(@typescript-eslint/utils@8.59.0(eslint@9.39.4)(typescript@5.5.4))(eslint@9.39.4)(typescript@5.5.4)
       '@mbtech-nl/prettier-config':
-        specifier: ^1.0.0
-        version: 1.0.0(prettier@3.8.3)
+        specifier: ^1.0.1
+        version: 1.0.1(prettier@3.8.3)
       '@mbtech-nl/tsconfig':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.0.1
+        version: 1.0.1
       '@vitest/coverage-v8':
         specifier: ^2.0.0
         version: 2.1.9(vitest@2.1.9)
@@ -297,21 +297,21 @@ packages:
     resolution: {integrity: sha512-Mfmw2s97d8B1gkqkUUN0E69cF+ZfFXDOJOvGbhC5XbRu04PEoItHhPI3J85w2FKHRyDX/96xErfohFil36dprg==}
     engines: {node: '>=24.0.0', pnpm: '>=9.0.0'}
 
-  '@mbtech-nl/eslint-config@1.0.0':
-    resolution: {integrity: sha512-vfG+aX95G4nrmvEYqOGydd35nwv5nRCryo4a3KfN5R1SbHJ26dPHulWJ99BNlVCfW0rn4Te0jfXEfqC/fXfK9g==}
+  '@mbtech-nl/eslint-config@1.0.1':
+    resolution: {integrity: sha512-YXjxS8qC8zl4zC8TD5pD/XLMY3eYldt04lq5YeczLtljBDsvWbqXBmeEbTCQtWFNkDWGwtScbF9G5PHzvIYOCQ==}
     engines: {node: '>=24.0.0'}
     peerDependencies:
       eslint: '>=9.0.0'
       typescript: '>=5.0.0'
 
-  '@mbtech-nl/prettier-config@1.0.0':
-    resolution: {integrity: sha512-QUER8bQwvv+UBi6Wp78qlNyxVKMLDcgV7Y4orBCviXvApXzHaboWp6ZRlw6OG9CwzlQDTaWOv5yG6bEqktPa8A==}
+  '@mbtech-nl/prettier-config@1.0.1':
+    resolution: {integrity: sha512-tM9StluWoa6Ac4B4wIk5eYObWMNfTyeT2S534+cyQ+sYdq88TMqZHmnoPoLRzOtr64yvUe3YVIU/QFC2rACiTg==}
     engines: {node: '>=24.0.0'}
     peerDependencies:
       prettier: '>=3.0.0'
 
-  '@mbtech-nl/tsconfig@1.0.0':
-    resolution: {integrity: sha512-10HHANxOVSi11X62neeorismUA8Ys5vYvrQ3YxzOFwQSCyaoZ2dXw+8p5CDmvztptvGZ03as03RS7ItJrmYXhA==}
+  '@mbtech-nl/tsconfig@1.0.1':
+    resolution: {integrity: sha512-Mc/vaKUen783dDhBa7oeDfECsuOaWducWQYS0qiJta/2FgTOk7yoEPFimTFoNl/lL4WQ924bxSpA3MsBI/FubQ==}
     engines: {node: '>=24.0.0'}
 
   '@napi-rs/wasm-runtime@0.2.12':
@@ -1718,7 +1718,7 @@ snapshots:
 
   '@mbtech-nl/bitmap@1.0.1': {}
 
-  '@mbtech-nl/eslint-config@1.0.0(@typescript-eslint/utils@8.59.0(eslint@9.39.4)(typescript@5.5.4))(eslint@9.39.4)(typescript@5.5.4)':
+  '@mbtech-nl/eslint-config@1.0.1(@typescript-eslint/utils@8.59.0(eslint@9.39.4)(typescript@5.5.4))(eslint@9.39.4)(typescript@5.5.4)':
     dependencies:
       '@typescript-eslint/eslint-plugin': 8.59.0(@typescript-eslint/parser@8.59.0(eslint@9.39.4)(typescript@5.5.4))(eslint@9.39.4)(typescript@5.5.4)
       '@typescript-eslint/parser': 8.59.0(eslint@9.39.4)(typescript@5.5.4)
@@ -1731,11 +1731,11 @@ snapshots:
       - eslint-import-resolver-node
       - supports-color
 
-  '@mbtech-nl/prettier-config@1.0.0(prettier@3.8.3)':
+  '@mbtech-nl/prettier-config@1.0.1(prettier@3.8.3)':
     dependencies:
       prettier: 3.8.3
 
-  '@mbtech-nl/tsconfig@1.0.0': {}
+  '@mbtech-nl/tsconfig@1.0.1': {}
 
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:
