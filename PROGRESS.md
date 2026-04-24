@@ -47,10 +47,10 @@ Tracks completion of the steps in `PLAN.md` §9.
 
 ## Step 5 — Index and type tests
 
-- [ ] `src/index.ts` — export everything
-- [ ] `src/__tests__/types.test.ts` — structural compatibility checks
-- [ ] Gate: typecheck + lint + test + build
-- [ ] Commit + push
+- [x] `src/index.ts` — export everything
+- [x] `src/__tests__/types.test.ts` — structural compatibility checks
+- [x] Gate: typecheck + lint + test + build
+- [x] Commit + push
 
 ## Step 6 — README
 

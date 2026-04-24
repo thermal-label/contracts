@@ -7,7 +7,7 @@ import {
   TransportError,
   TransportTimeoutError,
   UnsupportedOperationError,
-} from '../errors.js';
+} from '../index.js';
 
 describe('TransportError', () => {
   it('sets name, message, and transport field', () => {
