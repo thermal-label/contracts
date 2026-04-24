@@ -32,11 +32,11 @@ Tracks completion of the steps in `PLAN.md` §9.
 
 ## Step 3 — Adapter, preview, and discovery types
 
-- [ ] `src/adapter.ts` — `PrinterAdapter` (with `device?`, `print` takes `RawImageData` + optional media)
-- [ ] `src/preview.ts` — `PreviewOptions` (media only), `PreviewResult`, `PreviewPlane`
-- [ ] `src/discovery.ts` — `PrinterDiscovery`, `DiscoveredPrinter`, `OpenOptions`
-- [ ] Gate: typecheck + build
-- [ ] Commit + push
+- [x] `src/adapter.ts` — `PrinterAdapter` (with `device?`, `print` takes `RawImageData` + optional media)
+- [x] `src/preview.ts` — `PreviewOptions` (media only), `PreviewResult`, `PreviewPlane`
+- [x] `src/discovery.ts` — `PrinterDiscovery`, `DiscoveredPrinter`, `OpenOptions`
+- [x] Gate: typecheck + build
+- [x] Commit + push
 
 ## Step 4 — Error types
 
