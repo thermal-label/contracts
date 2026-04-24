@@ -1,14 +1,18 @@
 # @thermal-label/contracts — Implementation Plan
 
 > Pure types and interfaces for the thermal-label printer driver ecosystem.
-> Zero runtime dependencies. Zero Node.js built-ins. Safe to import from
-> any environment. This package defines the contracts that all drivers
-> implement and all consumers program against.
+> Zero runtime dependencies beyond `@mbtech-nl/bitmap` type re-exports.
+> Zero Node.js built-ins. Safe to import from any environment.
 >
-> **This is the source of truth for the driver interface.** When contracts
-> says `PrinterAdapter.print()` accepts `RawImageData`, every driver
-> implements that. When contracts defines `MediaDescriptor`, every driver
-> extends it. Changes here are intentional and propagate everywhere.
+> This package defines the contracts that all drivers implement and all
+> consumers program against. It is the source of truth for the driver
+> interface.
+>
+> **SCOPE: this plan covers ONLY the contracts package.** Do not modify,
+> inspect, or reference code in sibling driver packages (brother-ql,
+> labelwriter, labelmanager). Those will be retrofitted in separate
+> amendments. This package is greenfield — build it from the plan, not
+> from existing driver code.
 
 ---
 
@@ -27,23 +31,26 @@ contracts/
 │       └── release.yml
 ├── src/
 │   ├── index.ts
-│   ├── transport.ts          # Transport interface
-│   ├── adapter.ts            # PrinterAdapter
-│   ├── media.ts              # MediaDescriptor
-│   ├── preview.ts            # PreviewOptions, PreviewResult, PreviewPlane
-│   ├── device.ts             # DeviceDescriptor, BluetoothConfig, TransportType
-│   ├── discovery.ts          # PrinterDiscovery, DiscoveredPrinter, OpenOptions
-│   ├── status.ts             # PrinterStatus, PrintOptions
-│   ├── errors.ts             # error classes
-│   ├── bitmap.ts             # re-export LabelBitmap, RawImageData from @mbtech-nl/bitmap
+│   ├── transport.ts
+│   ├── adapter.ts
+│   ├── media.ts
+│   ├── preview.ts
+│   ├── device.ts
+│   ├── discovery.ts
+│   ├── status.ts
+│   ├── errors.ts
+│   ├── bitmap.ts
 │   └── __tests__/
 │       ├── errors.test.ts
-│       └── types.test.ts     # compile-time type checks
+│       └── types.test.ts
+├── PROGRESS.md
+├── DECISIONS.md
+├── BLOCKERS.md
 ├── LICENSE
 ├── README.md
 ├── package.json
 ├── tsconfig.json
-├── tsconfig.build.json       # narrow emit scope (see sheet-templates lesson)
+├── tsconfig.build.json
 └── eslint.config.js
 ```
 
@@ -66,6 +73,12 @@ export interface Transport {
   /**
    * Read bytes from the printer.
    * Buffers until `length` bytes are available or timeout occurs.
+   *
+   * BLE implementations: there is no "read N bytes" primitive in BLE.
+   * Implementations must buffer incoming GATT notifications internally
+   * and satisfy read() calls from the buffer. Document this in your
+   * transport class — every BLE impl must handle buffering consistently.
+   *
    * @throws TransportTimeoutError on timeout.
    * @throws TransportClosedError if closed mid-read.
    */
@@ -84,10 +97,22 @@ export interface Transport {
 ```typescript
 /**
  * Base media descriptor. Each driver extends with family-specific fields
- * (print area, margins, head geometry, etc.).
+ * (print area dots, margins, head geometry, etc.).
  *
- * Contracts defines the minimum shape that PrinterAdapter methods accept.
- * Structural typing means any superset passes cleanly.
+ * Contracts defines the minimum shape. Structural typing means any
+ * superset passes cleanly to PrinterAdapter methods.
+ *
+ * @example
+ * // Brother QL continuous tape
+ * { id: 259, name: '62mm continuous', widthMm: 62, type: 'continuous', colorCapable: false }
+ *
+ * @example
+ * // Brother QL two-colour tape
+ * { id: 251, name: 'DK-22251 62mm', widthMm: 62, type: 'continuous', colorCapable: true }
+ *
+ * @example
+ * // Die-cut address label
+ * { id: 274, name: '62×29mm', widthMm: 62, heightMm: 29, type: 'die-cut', colorCapable: false }
  */
 export interface MediaDescriptor {
   /** Unique identifier within the driver family. */
@@ -99,15 +124,23 @@ export interface MediaDescriptor {
   /** Physical width in mm. */
   widthMm: number;
 
-  /** Physical height/length in mm. 0 = continuous (variable length). */
-  heightMm: number;
+  /**
+   * Physical height/length in mm.
+   * Undefined = continuous (variable length, printer cuts to content).
+   * A number = fixed length (die-cut labels, tape segments).
+   */
+  heightMm?: number;
 
-  /** Media type classification — driver-specific values. */
-  type: string;  // e.g. 'continuous' | 'die-cut' | 'tape'
+  /**
+   * Media type classification — driver-specific string values.
+   * Common values: 'continuous', 'die-cut', 'tape'.
+   * Drivers may define additional values as needed.
+   */
+  type: string;
 
   /**
    * Whether this media supports multi-colour printing.
-   * false for most media. true for Brother QL DK-22251 (black + red).
+   * false for most media. true for e.g. Brother QL DK-22251 (black + red).
    * The driver uses this to decide whether to split colour planes.
    */
   colorCapable: boolean;
@@ -133,17 +166,32 @@ export interface PrinterAdapter {
   readonly connected: boolean;
 
   /**
+   * The device descriptor for the connected printer.
+   * Useful for logging, diagnostics, and displaying VID/PID.
+   * Undefined if the connection was established without device matching
+   * (e.g. raw TCP to a known IP).
+   */
+  readonly device?: DeviceDescriptor;
+
+  /**
    * Print from a full-colour RGBA image.
    *
    * The driver converts to its native format internally:
-   * - Single-colour drivers threshold/dither to 1bpp
+   * - Single-colour drivers threshold/dither RGBA to 1bpp
    * - Two-colour drivers check media.colorCapable and split planes if true
+   *
+   * Two-colour splitting: the driver decides what constitutes each colour.
+   * The contracts package does NOT define what "red" means — that's
+   * driver-specific knowledge (e.g. brother-ql-core's isRedish() heuristic).
+   *
+   * For multi-page batch jobs, call print() once per label. The driver
+   * handles job framing internally (e.g. Brother QL page-break commands
+   * between sequential print() calls within the same session).
    *
    * @param image — full RGBA, typically from designer.render()
    * @param media — which media to print on. Determines dimensions, margins,
    *   and colour mode. If omitted, uses detected media from last getStatus().
-   *   Throws if no media is known.
-   * @param options — copies, density, etc.
+   * @throws MediaNotSpecifiedError if no media is known.
    */
   print(image: RawImageData, media?: MediaDescriptor, options?: PrintOptions): Promise<void>;
 
@@ -151,8 +199,16 @@ export interface PrinterAdapter {
    * Generate a preview showing how this printer would reproduce the design
    * on the given media. Returns separated 1bpp planes with display colours.
    *
+   * The driver uses its own colour-splitting logic (same code that print()
+   * uses internally) to produce the planes. The consuming app renders
+   * whatever planes come back without needing to know the splitting rules.
+   *
+   * For offline preview without a live connection, use the static
+   * createPreviewOffline() function exported from the driver's *-core
+   * package instead.
+   *
    * @param image — full RGBA, typically from designer.render()
-   * @param options — optional media override and render settings.
+   * @param options — optional media override.
    *   If media is omitted, uses detected media from last getStatus().
    *   If no status available, defaults to single-colour at the printer's
    *   native head width.
@@ -176,14 +232,12 @@ export interface PreviewOptions {
    * - Printer can't detect media (LabelWriter 450, LabelManager)
    * - Designing offline for a specific media type
    * - Testing with a specific media configuration
+   *
+   * If omitted, uses detected media from last getStatus().
+   * If no status available and no override, driver defaults to
+   * single-colour at its native head width with assumed: true.
    */
   media?: MediaDescriptor;
-
-  /** Threshold for 1bpp conversion (0-255, default 128). */
-  threshold?: number;
-
-  /** Use Floyd-Steinberg dithering (default true). */
-  dither?: boolean;
 }
 
 export interface PreviewResult {
@@ -195,9 +249,11 @@ export interface PreviewResult {
 
   /**
    * True if media was assumed/defaulted because detection wasn't available
-   * and no override was provided. The consuming app should communicate this
-   * to the user: "preview may differ from print — select media or connect
-   * printer for accurate result."
+   * and no override was provided.
+   *
+   * The consuming app MUST communicate this to the user, e.g.:
+   * "Preview may differ from print — select media or connect printer
+   * for accurate result."
    */
   assumed: boolean;
 }
@@ -212,6 +268,7 @@ export interface PreviewPlane {
   /**
    * CSS colour to display this plane in the preview UI.
    * e.g. '#000000' for black, '#ff0000' for red.
+   * The app uses this to render the bitmap in the correct colour.
    */
   displayColor: string;
 }
@@ -222,24 +279,26 @@ export interface PreviewPlane {
 ```typescript
 export interface PrintOptions {
   copies?: number;
-  density?: 'light' | 'normal' | 'dark';
+
+  /**
+   * Driver-specific density setting.
+   * Common values: 'light', 'normal', 'dark'.
+   * Some drivers support additional values: 'medium', 'high'.
+   * The driver throws UnsupportedOperationError for unrecognised values.
+   * 'normal' is universally supported across all drivers.
+   */
+  density?: string;
 }
 
 export interface PrinterStatus {
   /** Printer is ready to accept a print job. */
   ready: boolean;
 
-  /** Media is loaded and detected (if printer supports detection). */
+  /** Media is loaded (if printer supports detection). */
   mediaLoaded: boolean;
 
-  /** Detected media width in mm (undefined if printer can't detect). */
-  mediaWidthMm?: number;
-
-  /** Detected media type string (undefined if printer can't detect). */
-  mediaType?: string;
-
   /**
-   * Full detected media descriptor, if the printer supports detection.
+   * Detected media descriptor, if the printer supports detection.
    * Undefined if printer can't detect (LabelWriter 450, LabelManager)
    * or no status has been queried yet.
    *
@@ -248,11 +307,21 @@ export interface PrinterStatus {
    */
   detectedMedia?: MediaDescriptor;
 
-  /** Human-readable error descriptions. Empty array = no errors. */
-  errors: string[];
+  /**
+   * Structured error list. Empty array = no errors.
+   * Use code for programmatic branching, message for display.
+   */
+  errors: PrinterError[];
 
   /** Raw status bytes from the printer — for diagnostics and debugging. */
   rawBytes: Uint8Array;
+}
+
+export interface PrinterError {
+  /** Machine-readable error code, e.g. 'no_media', 'cover_open', 'cutter_jam'. */
+  code: string;
+  /** Human-readable error description. */
+  message: string;
 }
 ```
 
@@ -267,11 +336,18 @@ export interface DeviceDescriptor {
   /** Human-readable model name. */
   name: string;
 
-  /** USB Vendor ID. */
-  vid: number;
+  /**
+   * USB Vendor ID. Required when transports includes 'usb' or 'webusb'.
+   * Undefined for network-only printers (e.g. LabelWriter 550 Turbo
+   * accessed purely over Ethernet).
+   */
+  vid?: number;
 
-  /** USB Product ID. */
-  pid: number;
+  /**
+   * USB Product ID. Required when transports includes 'usb' or 'webusb'.
+   * Undefined for network-only printers.
+   */
+  pid?: number;
 
   /** Driver family this device belongs to. */
   family: string;
@@ -282,7 +358,8 @@ export interface DeviceDescriptor {
   /**
    * BLE connection parameters. Present only when transports includes
    * 'web-bluetooth'. Discovered by sniffing GATT traffic from the
-   * manufacturer's mobile app.
+   * manufacturer's mobile app — use nRF Connect or LightBlue on the
+   * live device.
    */
   bluetooth?: BluetoothConfig;
 }
@@ -309,8 +386,7 @@ export interface BluetoothConfig {
 /**
  * Interface for discovering available printers.
  * Each driver implements this for its supported transports.
- * The unified CLI uses discoverAll() to auto-detect printers
- * across all installed driver packages.
+ * The unified CLI uses discoverAll() across all installed drivers.
  */
 export interface PrinterDiscovery {
   /** Driver family identifier — matches DeviceDescriptor.family. */
@@ -319,7 +395,10 @@ export interface PrinterDiscovery {
   /** List connected printers on this transport. */
   listPrinters(): Promise<DiscoveredPrinter[]>;
 
-  /** Open a specific printer by identifier. */
+  /**
+   * Open a printer matching the given options.
+   * If no options provided, opens the first available printer.
+   */
   openPrinter(options?: OpenOptions): Promise<PrinterAdapter>;
 }
 
@@ -378,7 +457,7 @@ export class TransportClosedError extends TransportError {
 
 export class DeviceNotFoundError extends Error {
   constructor(vid?: number, pid?: number) {
-    super(vid && pid
+    super(vid != null && pid != null
       ? `No device found with VID=0x${vid.toString(16)} PID=0x${pid.toString(16)}`
       : 'No compatible device found');
     this.name = 'DeviceNotFoundError';
@@ -394,7 +473,10 @@ export class UnsupportedOperationError extends Error {
 
 export class MediaNotSpecifiedError extends Error {
   constructor() {
-    super('No media specified and none detected — provide media explicitly or call getStatus() first');
+    super(
+      'No media specified and none detected. ' +
+      'Provide media explicitly or call getStatus() first.'
+    );
     this.name = 'MediaNotSpecifiedError';
   }
 }
@@ -402,35 +484,29 @@ export class MediaNotSpecifiedError extends Error {
 
 ---
 
-## 4. Recommended Patterns (not interfaces — guidance for implementers)
+## 4. Recommended Patterns
+
+These are guidance for driver implementers — documented here so every
+driver follows the same conventions, but not enforced as interfaces.
 
 ### 4.1 Offline Preview
 
 Each driver's `*-core` package should export a standalone preview function
-that works without a live printer connection:
+for hardware-free previews:
 
 ```typescript
-// Recommended export from @thermal-label/brother-ql-core
+// Recommended export from each *-core package
 export function createPreviewOffline(
   image: RawImageData,
-  media: BrotherQLMedia,
-  options?: { threshold?: number; dither?: boolean },
-): PreviewResult;
-
-// Recommended export from @thermal-label/labelwriter-core
-export function createPreviewOffline(
-  image: RawImageData,
-  media: LabelWriterMedia,
-  options?: { threshold?: number; dither?: boolean },
+  media: FamilySpecificMedia,  // driver's extended MediaDescriptor
 ): PreviewResult;
 ```
 
-This enables the label-maker app to show previews when designing for a
-specific printer/media combination without hardware connected. The app
-imports the target driver's core package and calls `createPreviewOffline`.
-
-This is a recommended pattern, not a contracts interface — it's a static
-function export, not a method on an instance.
+**Why separate from the instance method?** The instance `createPreview()`
+can use detected media from `getStatus()` as a fallback. The static
+function requires explicit media — there's no printer to query.
+Implementers should share the core splitting/rendering logic between
+both to avoid duplication.
 
 ### 4.2 Media Auto-Detection Flow
 
@@ -439,31 +515,29 @@ printer.getStatus()
   → PrinterStatus.detectedMedia is populated (or undefined)
 
 printer.print(image)
-  → no explicit media provided
-  → driver checks this.lastStatus.detectedMedia
-  → if present: use it (auto-detected)
+  → no explicit media → check this.lastStatus.detectedMedia
+  → if present: use it
   → if absent: throw MediaNotSpecifiedError
 
 printer.print(image, explicitMedia)
-  → explicit media provided
-  → use it, ignore detection
+  → use explicitMedia, ignore detection
 
 printer.createPreview(image)
   → same fallback logic as print()
 
-printer.createPreview(image, { media: manuallySelected })
-  → use the provided media override
+printer.createPreview(image, { media: override })
+  → use the override
 ```
 
 ### 4.3 Single-Colour Driver Shortcut
 
-Single-colour drivers (LabelWriter, LabelManager) always return one
-plane from `createPreview()`:
+Drivers that only support single-colour output (LabelWriter, LabelManager)
+have a trivial `createPreview()`:
 
 ```typescript
 async createPreview(image, options?) {
   const media = options?.media ?? this.detectedMedia ?? this.defaultMedia();
-  const bitmap = renderImage(image, { dither: options?.dither ?? true });
+  const bitmap = renderImage(image, { dither: true });
   return {
     planes: [{ name: 'black', bitmap, displayColor: '#000000' }],
     media,
@@ -472,8 +546,36 @@ async createPreview(image, options?) {
 }
 ```
 
-No colour splitting logic needed. `colorCapable` on their media descriptors
-is always `false`.
+No colour splitting needed. `colorCapable` on their media descriptors is
+always `false`.
+
+### 4.4 Two-Colour Contract
+
+The contracts package does NOT define what "red" means. That's driver
+knowledge:
+
+- Brother QL's `splitTwoColor()` uses an `isRedish(r, g, b)` heuristic
+- A future printer with different colours would use a different heuristic
+- The contract says: `MediaDescriptor.colorCapable: boolean`. If true,
+  the driver splits. If false, everything goes to one black plane.
+- The preview's `PreviewPlane.displayColor` communicates the colour to
+  the UI — the UI doesn't need to know the splitting rules.
+
+### 4.5 Multi-Page Batch Printing
+
+`print()` handles one label per call. For batch jobs:
+
+```typescript
+for (const row of csvRows) {
+  const image = await designer.render(row);
+  await printer.print(image, media);
+}
+```
+
+The driver manages internal job state across sequential `print()` calls
+(Brother QL page-break commands, LabelWriter form feeds, etc.). If a
+future driver needs explicit batch framing, add `beginBatch()` /
+`endBatch()` methods — don't overload `print()`.
 
 ---
 
@@ -483,8 +585,8 @@ is always `false`.
 {
   "name": "@thermal-label/contracts",
   "version": "0.1.0",
-  "description": "Shared interfaces for thermal-label printer drivers",
-  "keywords": ["thermal-label", "printer", "driver", "interfaces", "contracts", "usb", "bluetooth"],
+  "description": "Shared types and interfaces for thermal-label printer drivers",
+  "keywords": ["thermal-label", "printer", "driver", "types", "interfaces"],
   "type": "module",
   "author": "Mannes Brak",
   "license": "MIT",
@@ -496,7 +598,6 @@ is always `false`.
     { "type": "ko-fi", "url": "https://ko-fi.com/mannes" }
   ],
   "files": ["dist", "README.md"],
-  "engines": { "node": ">=24.0.0" },
   "publishConfig": { "access": "public" },
   "sideEffects": false,
   "types": "./src/index.ts",
@@ -522,11 +623,12 @@ is always `false`.
 }
 ```
 
-Zero runtime deps beyond the bitmap types re-export. No `usb`, no
-`@types/node`, no platform-specific anything.
+**No `engines` field.** This is a pure types package — works on any Node
+version. Don't restrict consumers unnecessarily.
 
 Use `tsconfig.json` (wide scope, noEmit, for typecheck + lint) and
-`tsconfig.build.json` (narrow scope, emit) — same pattern as sheet-templates.
+`tsconfig.build.json` (narrow scope, emit only `src/`). Same pattern as
+sheet-templates — required by `@mbtech-nl/eslint-config`'s `projectService`.
 
 ---
 
@@ -534,35 +636,35 @@ Use `tsconfig.json` (wide scope, noEmit, for typecheck + lint) and
 
 ### 6.1 Error Types (`errors.test.ts`)
 
-- `TransportTimeoutError` has correct name, message, transport field
-- `TransportClosedError` has correct name
-- `DeviceNotFoundError` formats VID/PID in hex
-- `MediaNotSpecifiedError` has helpful message
-- All error types are instanceof their parent classes
-- `TransportError` subtypes are instanceof both `TransportError` and `Error`
+- `TransportTimeoutError` — correct name, message includes timeout value, transport field set
+- `TransportClosedError` — correct name, transport field set
+- `DeviceNotFoundError` — formats VID/PID in hex when provided, generic message when not
+- `MediaNotSpecifiedError` — helpful message mentioning getStatus()
+- `UnsupportedOperationError` — message includes operation and reason
+- All `Transport*Error` subtypes are instanceof both `TransportError` and `Error`
+- `DeviceNotFoundError` is instanceof `Error` but not `TransportError`
 
 ### 6.2 Type Checks (`types.test.ts`)
 
-Compile-time structural compatibility checks:
+Compile-time structural compatibility checks. Use whichever vitest type
+assertion API is current — check docs for your installed version:
 
 ```typescript
-import { expectTypeOf } from 'vitest';
-
 // A driver's extended device descriptor satisfies the base
 interface TestDevice extends DeviceDescriptor {
   family: 'test';
   customField: number;
 }
-expectTypeOf<TestDevice>().toMatchTypeOf<DeviceDescriptor>();
 
 // A driver's extended media descriptor satisfies the base
 interface TestMedia extends MediaDescriptor {
   printAreaDots: number;
+  leftMarginPins: number;
 }
-expectTypeOf<TestMedia>().toMatchTypeOf<MediaDescriptor>();
 
-// PreviewResult.planes is an array of PreviewPlane
-expectTypeOf<PreviewResult['planes']>().toMatchTypeOf<PreviewPlane[]>();
+// PreviewResult.planes is PreviewPlane[]
+// PrinterStatus.errors is PrinterError[]
+// PrinterAdapter has all required methods
 ```
 
 ---
@@ -570,14 +672,16 @@ expectTypeOf<PreviewResult['planes']>().toMatchTypeOf<PreviewPlane[]>();
 ## 7. README
 
 - Package name + one-line description
-- Install snippet
-- Interface overview — one-line description per exported type
+- Install snippet: `pnpm add @thermal-label/contracts`
+- Interface overview — one-line per exported type/interface
 - "This package is types and interfaces only — for transport implementations
   see `@thermal-label/transport`"
-- Example: implementing `PrinterAdapter` for a hypothetical driver
-- Example: using `createPreview` return value in a UI
-- Table of existing drivers that implement these contracts
-- Link to contributor guide in the transport package
+- Example: sketch of a `PrinterAdapter` implementation
+- Example: using `PreviewResult` in a UI
+- Table of existing drivers that will implement these contracts
+- Link to contributor guide (in transport package, once it ships)
+- "Applying these contracts to existing drivers is covered in separate
+  driver retrofit amendments."
 - Attribution: not affiliated with Dymo, Brother, etc.
 - License badge, funding links
 
@@ -612,8 +716,7 @@ jobs:
       - run: pnpm build
 ```
 
-Release workflow: standard npm trusted publishing, same pattern as all
-other packages.
+Release workflow: standard npm trusted publishing.
 
 ---
 
@@ -623,31 +726,37 @@ other packages.
 1. Scaffold
    - LICENSE (MIT, Mannes Brak)
    - .github/FUNDING.yml
-   - package.json, tsconfig.json, tsconfig.build.json, eslint.config.js
+   - package.json (NO engines field), tsconfig.json, tsconfig.build.json,
+     eslint.config.js
    - GitHub Actions: ci.yml, release.yml
    - .gitignore
-   - PROGRESS.md with all steps as checkboxes
+   - PROGRESS.md, DECISIONS.md, BLOCKERS.md
    - pnpm install — must complete without errors
    - Commit + push
 
 2. Core types
-   - src/transport.ts — Transport interface
-   - src/media.ts — MediaDescriptor
-   - src/status.ts — PrinterStatus, PrintOptions
-   - src/device.ts — DeviceDescriptor, TransportType, BluetoothConfig
+   - src/transport.ts — Transport interface (with BLE buffering note)
+   - src/media.ts — MediaDescriptor (heightMm optional, type is string)
+   - src/status.ts — PrinterStatus (detectedMedia only, no scalar
+     mediaWidthMm/mediaType), PrintOptions (density is string),
+     PrinterError
+   - src/device.ts — DeviceDescriptor (vid/pid optional),
+     TransportType, BluetoothConfig
    - src/discovery.ts — PrinterDiscovery, DiscoveredPrinter, OpenOptions
    - src/bitmap.ts — re-export LabelBitmap, RawImageData
    - Gate: typecheck + build
    - Commit + push
 
 3. Adapter and preview types
-   - src/adapter.ts — PrinterAdapter (print, createPreview, getStatus, close)
-   - src/preview.ts — PreviewOptions, PreviewResult, PreviewPlane
+   - src/adapter.ts — PrinterAdapter (with device? field, print takes
+     RawImageData + optional media, createPreview documented)
+   - src/preview.ts — PreviewOptions (media only, no threshold/dither),
+     PreviewResult, PreviewPlane
    - Gate: typecheck + build
    - Commit + push
 
 4. Error types
-   - src/errors.ts — all error classes
+   - src/errors.ts — all error classes including MediaNotSpecifiedError
    - src/__tests__/errors.test.ts
    - Gate: typecheck + lint + test + build
    - Commit + push
@@ -673,30 +782,39 @@ other packages.
 
 ## 10. Key Constraints
 
-- **Pure types** — zero runtime code beyond error class constructors.
-  No platform deps, no `usb`, no `@types/node`.
-- **`MediaDescriptor` is a base type** — each driver extends it with
-  family-specific fields. Structural typing means any superset passes.
-- **`PrinterAdapter.print()` accepts `RawImageData`** — the driver does
-  RGBA → 1bpp conversion internally. The caller never touches bitmaps
-  directly for printing.
-- **`createPreview()` returns `PreviewResult` with `assumed` flag** —
-  the consuming app MUST communicate to the user whether the preview
-  is based on detected media or a guess.
-- **`MediaNotSpecifiedError`** — thrown when `print()` or `createPreview()`
-  has no media (not passed explicitly, not detected). The caller must
-  either pass media or call `getStatus()` first.
-- **`createPreviewOffline` is a recommended pattern, not an interface** —
-  it's a static function export from each `*-core` package, documented
-  in section 4.1 as guidance for implementers.
-- **Web Bluetooth config on DeviceDescriptor** — `bluetooth?: BluetoothConfig`
-  is optional, present only when `transports` includes `'web-bluetooth'`.
-  UUIDs are discovered by GATT sniffing, not from documentation.
-- **This package defines the interface. Drivers implement it. Consumers
-  program against it.** Changes here propagate everywhere — be intentional.
-- **`publishConfig: { access: "public" }`** in package.json.
-- **`pnpm prettier --check`** in CI.
-- **`sideEffects: false`** in package.json.
-- **Two tsconfigs** — `tsconfig.json` wide scope for lint/typecheck,
-  `tsconfig.build.json` narrow scope for emit.
-- **At 0.x, break freely** — no deprecation ceremony. Bump and move on.
+**Scope:**
+- **ONLY implement this package.** Do not modify, inspect, or import from
+  sibling driver packages. Do not check how brother-ql or labelwriter
+  currently structure their types. Build from this plan only.
+- Driver retrofits are a separate follow-up — not part of this work.
+
+**Design decisions (locked in):**
+- **`MediaDescriptor.heightMm` is optional** — undefined = continuous.
+  No magic zero value.
+- **`PrinterStatus` has `detectedMedia?: MediaDescriptor` only** — no
+  separate `mediaWidthMm` or `mediaType` scalars. One source of truth.
+- **`PrinterStatus.errors` is `PrinterError[]`** with `{ code, message }` —
+  not `string[]`. Enables programmatic branching.
+- **`PrintOptions.density` is `string`** — drivers validate internally.
+  `'normal'` is universally supported. Drivers throw
+  `UnsupportedOperationError` for unrecognised values.
+- **`DeviceDescriptor.vid` and `pid` are optional** — required only when
+  transports includes USB or WebUSB. Network-only printers omit them.
+- **`PrinterAdapter.device?` is exposed** — optional readonly, for logging
+  and diagnostics.
+- **`PreviewOptions` has only `media?`** — no `threshold`/`dither`. Those
+  are driver-specific rendering concerns, not preview contract concerns.
+- **Two-colour splitting is driver knowledge** — contracts says
+  `colorCapable: boolean`. What "red" means is up to brother-ql-core.
+- **`print()` is one label per call** — batch = loop. Driver manages job
+  framing internally.
+- **No `engines` field** — pure types work on any Node version.
+
+**Tooling:**
+- Two tsconfigs: `tsconfig.json` wide for lint, `tsconfig.build.json`
+  narrow for emit.
+- `@mbtech-nl/eslint-config`, `prettier-config`, `tsconfig` as usual.
+- `publishConfig: { access: "public" }`.
+- `pnpm prettier --check` in CI.
+- `sideEffects: false`.
+- At 0.x, break freely — no deprecation ceremony.
