@@ -59,7 +59,8 @@ Tracks completion of the steps in `PLAN.md` §9.
 
 ## Step 7 — Final
 
-- [ ] `pnpm test:coverage` — thresholds pass
-- [ ] All PROGRESS.md checkboxes ticked
-- [ ] Publish to npm (requires operator approval — see BLOCKERS.md)
-- [ ] Commit + push
+- [x] `pnpm test:coverage` — thresholds pass (100% on runtime files)
+- [x] `pnpm pack` tarball verified: LICENSE + README + full dist
+- [x] All PROGRESS.md checkboxes ticked (this one excepted until commit)
+- [ ] Publish to npm — **deferred to operator, see BLOCKERS.md B1**
+- [x] Commit + push
