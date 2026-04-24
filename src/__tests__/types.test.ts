@@ -88,7 +88,9 @@ describe('device shapes', () => {
   });
 
   it('TransportType is the expected union', () => {
-    expectTypeOf<TransportType>().toEqualTypeOf<'usb' | 'tcp' | 'webusb' | 'web-bluetooth'>();
+    expectTypeOf<TransportType>().toEqualTypeOf<
+      'usb' | 'tcp' | 'serial' | 'webusb' | 'web-serial' | 'web-bluetooth'
+    >();
   });
 });
 

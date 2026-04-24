@@ -47,6 +47,19 @@ export interface OpenOptions {
 
   /** TCP port. Default 9100. */
   port?: number;
+
+  /**
+   * Serial port path. Examples: `/dev/rfcomm0` (Linux, Bluetooth SPP),
+   * `/dev/ttyUSB0` (Linux, USB-serial adapter), `COM3` (Windows).
+   */
+  serialPath?: string;
+
+  /**
+   * Serial baud rate. Default 9600. Ignored for RFCOMM / Bluetooth SPP
+   * (the underlying link handles flow control) but required by the
+   * serialport and Web Serial APIs.
+   */
+  baudRate?: number;
 }
 
 /**
