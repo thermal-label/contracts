@@ -1,8 +1,8 @@
-import { type RawImageData } from './bitmap.js';
-import { type DeviceDescriptor } from './device.js';
-import { type MediaDescriptor } from './media.js';
-import { type PreviewOptions, type PreviewResult } from './preview.js';
-import { type PrinterStatus, type PrintOptions } from './status.js';
+import type { RawImageData } from './bitmap.js';
+import type { DeviceDescriptor } from './device.js';
+import type { MediaDescriptor } from './media.js';
+import type { PreviewOptions, PreviewResult } from './preview.js';
+import type { PrinterStatus, PrintOptions } from './status.js';
 
 /**
  * High-level printer interface implemented by each driver family.

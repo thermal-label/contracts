@@ -1,5 +1,5 @@
-import { type PrinterAdapter } from './adapter.js';
-import { type DeviceDescriptor, type TransportType } from './device.js';
+import type { PrinterAdapter } from './adapter.js';
+import type { DeviceDescriptor, TransportType } from './device.js';
 
 /**
  * A printer that was discovered on one of the supported transports.

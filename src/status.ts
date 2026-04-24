@@ -1,4 +1,4 @@
-import { type MediaDescriptor } from './media.js';
+import type { MediaDescriptor } from './media.js';
 
 /**
  * Options for a single `PrinterAdapter.print()` call.

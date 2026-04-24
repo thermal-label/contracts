@@ -79,7 +79,32 @@ a forward stub. Cleaner to co-locate them in Step 3.
 Step 2 gate remains "typecheck + build" — just over a smaller set of
 files. Step 3 gate picks up discovery in addition to adapter/preview.
 
-## D8 — `release.yml` uses trusted publishing
+## D9 — Disable `import-x/consistent-type-specifier-style`
+
+**Plan said:** use `@mbtech-nl/eslint-config` as-is.
+**Chose:** override `import-x/consistent-type-specifier-style: off` in
+`eslint.config.js`.
+
+**Why:** The shared config enables two rules that contradict each other
+for pure type-only imports:
+
+- `@typescript-eslint/no-import-type-side-effects: error` — forbids
+  inline `import { type X }` for type-only imports because with
+  `verbatimModuleSyntax: true` it leaves behind an empty runtime
+  `import {}` statement (a side-effect import).
+- `import-x/consistent-type-specifier-style: prefer-inline` — forces
+  inline `import { type X }` for every type import.
+
+For files that import *only* types, these can't both be satisfied. The
+first rule guards against an actual emitted runtime side effect; the
+second is stylistic. Disabling the stylistic one is the right trade.
+
+Mixed imports still use inline `{ foo, type Bar }` because
+`@typescript-eslint/consistent-type-imports` still enforces that.
+
+Should be upstreamed into `@mbtech-nl/eslint-config` as a proper fix.
+
+## D10 — `release.yml` uses trusted publishing
 
 **Plan said:** "standard npm trusted publishing".
 **Chose:** `pnpm publish --provenance --access public` triggered by

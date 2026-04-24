@@ -40,10 +40,10 @@ Tracks completion of the steps in `PLAN.md` §9.
 
 ## Step 4 — Error types
 
-- [ ] `src/errors.ts` — all error classes incl. `MediaNotSpecifiedError`
-- [ ] `src/__tests__/errors.test.ts`
-- [ ] Gate: typecheck + lint + test + build
-- [ ] Commit + push
+- [x] `src/errors.ts` — all error classes incl. `MediaNotSpecifiedError`
+- [x] `src/__tests__/errors.test.ts`
+- [x] Gate: typecheck + lint + test + build
+- [x] Commit + push
 
 ## Step 5 — Index and type tests
 

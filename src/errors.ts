@@ -1,0 +1,87 @@
+import type { TransportType } from './device.js';
+
+/**
+ * Base class for transport-layer errors.
+ *
+ * Wraps a transport-specific failure with the `TransportType` it came
+ * from, so callers can branch on transport (USB vs TCP vs BLE) without
+ * string-matching error messages.
+ */
+export class TransportError extends Error {
+  readonly transport: TransportType;
+
+  constructor(message: string, transport: TransportType) {
+    super(message);
+    this.name = 'TransportError';
+    this.transport = transport;
+  }
+}
+
+/**
+ * A read timed out waiting for bytes from the printer.
+ */
+export class TransportTimeoutError extends TransportError {
+  constructor(transport: TransportType, timeoutMs: number) {
+    super(`Read timed out after ${timeoutMs.toString()}ms`, transport);
+    this.name = 'TransportTimeoutError';
+  }
+}
+
+/**
+ * The transport was closed while a read or write was in flight, or a
+ * new operation was attempted on a closed transport.
+ */
+export class TransportClosedError extends TransportError {
+  constructor(transport: TransportType) {
+    super('Transport is closed', transport);
+    this.name = 'TransportClosedError';
+  }
+}
+
+/**
+ * No device matching the requested filter was found on the host.
+ *
+ * When both `vid` and `pid` are provided, the message includes them in
+ * hex for easier cross-referencing with the device registry.
+ */
+export class DeviceNotFoundError extends Error {
+  constructor(vid?: number, pid?: number) {
+    const message =
+      vid !== undefined && pid !== undefined
+        ? `No device found with VID=0x${vid.toString(16)} PID=0x${pid.toString(16)}`
+        : 'No compatible device found';
+    super(message);
+    this.name = 'DeviceNotFoundError';
+  }
+}
+
+/**
+ * The requested operation is not supported by this driver, printer, or
+ * media.
+ *
+ * Used by drivers to reject e.g. an unknown `PrintOptions.density` value,
+ * a cut command on a printer without a cutter, or a two-colour image on
+ * single-colour media.
+ */
+export class UnsupportedOperationError extends Error {
+  constructor(operation: string, reason: string) {
+    super(`${operation}: ${reason}`);
+    this.name = 'UnsupportedOperationError';
+  }
+}
+
+/**
+ * `PrinterAdapter.print()` or `createPreview()` was called without a
+ * media argument and no detected media was available.
+ *
+ * The caller must either pass `media` explicitly or call `getStatus()`
+ * first so the adapter can cache a detected media descriptor.
+ */
+export class MediaNotSpecifiedError extends Error {
+  constructor() {
+    super(
+      'No media specified and none detected. Provide media explicitly or call getStatus() first.',
+    );
+    this.name = 'MediaNotSpecifiedError';
+  }
+}

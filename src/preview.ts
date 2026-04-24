@@ -1,5 +1,5 @@
-import { type LabelBitmap } from './bitmap.js';
-import { type MediaDescriptor } from './media.js';
+import type { LabelBitmap } from './bitmap.js';
+import type { MediaDescriptor } from './media.js';
 
 /**
  * Options for `PrinterAdapter.createPreview()`.
