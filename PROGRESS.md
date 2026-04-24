@@ -54,8 +54,8 @@ Tracks completion of the steps in `PLAN.md` §9.
 
 ## Step 6 — README
 
-- [ ] `README.md` publish-ready (per PLAN §7)
-- [ ] Commit + push
+- [x] `README.md` publish-ready (per PLAN §7)
+- [x] Commit + push
 
 ## Step 7 — Final
 
