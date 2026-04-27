@@ -1,8 +1,11 @@
-export type { LabelBitmap, RawImageData } from './bitmap.js';
+export type { LabelBitmap, PaletteEntry, RawImageData } from './bitmap.js';
 
 export type { BluetoothConfig, DeviceDescriptor, TransportType } from './device.js';
 
 export type { MediaDescriptor } from './media.js';
+
+export type { RotateDirection } from './orientation.js';
+export { pickRotation } from './orientation.js';
 
 export type { PrinterError, PrinterStatus, PrintOptions } from './status.js';
 

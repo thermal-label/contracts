@@ -5,6 +5,7 @@ import type {
   DiscoveredPrinter,
   MediaDescriptor,
   OpenOptions,
+  PaletteEntry,
   PreviewOptions,
   PreviewPlane,
   PreviewResult,
@@ -35,6 +36,30 @@ describe('structural compatibility', () => {
       rightMarginPins: number;
     }
     expectTypeOf<BrotherQLMedia>().toExtend<MediaDescriptor>();
+  });
+
+  it('MediaDescriptor.palette is readonly PaletteEntry[] | undefined', () => {
+    expectTypeOf<MediaDescriptor['palette']>().toEqualTypeOf<readonly PaletteEntry[] | undefined>();
+  });
+
+  it("MediaDescriptor.defaultOrientation accepts 'horizontal' | 'vertical' | undefined", () => {
+    expectTypeOf<MediaDescriptor['defaultOrientation']>().toEqualTypeOf<
+      'horizontal' | 'vertical' | undefined
+    >();
+  });
+
+  it('MediaDescriptor.printMargins requires all four edges when present', () => {
+    type Margins = NonNullable<MediaDescriptor['printMargins']>;
+    expectTypeOf<Margins>().toEqualTypeOf<{
+      readonly leftMm: number;
+      readonly rightMm: number;
+      readonly topMm: number;
+      readonly bottomMm: number;
+    }>();
+  });
+
+  it('MediaDescriptor.cornerRadiusMm is optional number', () => {
+    expectTypeOf<MediaDescriptor['cornerRadiusMm']>().toEqualTypeOf<number | undefined>();
   });
 
   it('a driver-extended PrintOptions satisfies the base', () => {

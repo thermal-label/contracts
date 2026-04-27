@@ -64,3 +64,19 @@ Tracks completion of the steps in `PLAN.md` §9.
 - [x] All PROGRESS.md checkboxes ticked (this one excepted until commit)
 - [ ] Publish to npm — **deferred to operator, see BLOCKERS.md B1**
 - [x] Commit + push
+
+## Step 8 — MediaDescriptor refactor + orientation
+
+> Plan: [MEDIA_DESCRIPTOR_REFACTOR.md](../brother-ql/MEDIA_DESCRIPTOR_REFACTOR.md)
+
+- [x] Bump self to `0.2.0`
+- [x] Bump `@mbtech-nl/bitmap` to `^1.2.0`
+- [x] `src/bitmap.ts` re-export `PaletteEntry`
+- [x] `src/media.ts` drop `colorCapable`, add `palette` / `defaultOrientation` / `printMargins` / `cornerRadiusMm`
+- [x] `src/orientation.ts` (new) — `pickRotation` + `RotateDirection`
+- [x] `src/index.ts` export `PaletteEntry`, `pickRotation`, `RotateDirection`
+- [x] `src/adapter.ts` — JSDoc updated for palette + orientation strategy
+- [x] `src/__tests__/types.test.ts` — assertions for new fields
+- [x] `src/__tests__/orientation.test.ts` (new) — pickRotation truth table
+- [x] Gates green (typecheck, lint, format, test, build)
+

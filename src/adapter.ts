@@ -36,14 +36,20 @@ export interface PrinterAdapter {
    *
    * The driver converts to its native format internally:
    *
-   * - Single-colour drivers threshold/dither RGBA to 1bpp.
-   * - Two-colour drivers check `media.colorCapable` and split planes
-   *   if true.
+   * - Single-colour media (`media.palette` undefined) — threshold/dither
+   *   RGBA to a single 1bpp plane via `renderImage`.
+   * - Multi-ink media (`media.palette` defined) — split into planes via
+   *   `renderMultiPlaneImage` using that palette.
    *
-   * **Two-colour splitting:** the driver decides what constitutes each
-   * colour. The contracts package does not define what "red" means —
-   * that is driver-specific knowledge (e.g. brother-ql-core's
-   * `isRedish()` heuristic).
+   * **Orientation:** drivers compute the rotation via `pickRotation`
+   * (see `./orientation.ts`) — the input image is treated as the
+   * intended visual; the driver auto-rotates landscape input on media
+   * tagged `defaultOrientation: 'horizontal'`.
+   *
+   * **Multi-ink splitting:** the palette on the media descriptor names
+   * every ink the driver should classify pixels into; the contracts
+   * package does not pick "red" or "black" — those facts live with the
+   * media entry.
    *
    * **Batch printing:** call `print()` once per label. The driver
    * handles job framing internally (e.g. Brother QL page-break commands
