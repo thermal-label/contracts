@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@mbtech-nl/bitmap':
-        specifier: ^1.2.0
-        version: 1.2.0
+        specifier: ^1.2.1
+        version: 1.2.1
     devDependencies:
       '@mbtech-nl/eslint-config':
         specifier: ^1.0.1
@@ -293,8 +293,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@mbtech-nl/bitmap@1.2.0':
-    resolution: {integrity: sha512-P5UfR/PXM6CQcQ5WA5kEVl0P+ZgVxQPCKR2bGdP01a4p/ycn8fMBoiwM7j5Ng1LoPW+CcnRRr0kUy9vF56U/Pw==}
+  '@mbtech-nl/bitmap@1.2.1':
+    resolution: {integrity: sha512-pHpKkKwHMjZToF6+f/65nX+yOQJ1Ig+SLr/H2OX51yQJ87eDZl6hC8yuiMXIIaiFPUvqrFgaTl+Cxw+AshCoDQ==}
     engines: {node: '>=24.0.0', pnpm: '>=9.0.0'}
 
   '@mbtech-nl/eslint-config@1.0.1':
@@ -1716,7 +1716,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@mbtech-nl/bitmap@1.2.0': {}
+  '@mbtech-nl/bitmap@1.2.1': {}
 
   '@mbtech-nl/eslint-config@1.0.1(@typescript-eslint/utils@8.59.0(eslint@9.39.4)(typescript@5.5.4))(eslint@9.39.4)(typescript@5.5.4)':
     dependencies:
