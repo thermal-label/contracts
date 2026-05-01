@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  compatibleMediaFor,
-  mediaCompatibleWith,
-  mediaIdentitiesMatch,
-} from '../compatibility.js';
+import { compatibleMediaFor, mediaCompatibleWith, mediaIdentitiesMatch } from '../compatibility.js';
 import type { MediaDescriptor, PrintEngine } from '../index.js';
 
 const engine = (mediaCompatibility?: readonly string[]): PrintEngine => ({
@@ -61,7 +57,7 @@ describe('compatibleMediaFor', () => {
       media(3),
     ];
     const result = compatibleMediaFor(engine(['standard']), list);
-    expect(result.map((m) => m.id)).toEqual([1, 3]);
+    expect(result.map(m => m.id)).toEqual([1, 3]);
   });
 
   it('returns the full list when the engine is unrestricted', () => {

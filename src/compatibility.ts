@@ -26,7 +26,7 @@ export function mediaCompatibleWith(media: MediaDescriptor, engine: EngineCompat
   const eng = engine.mediaCompatibility;
   const mod = media.targetModels;
   if (eng === undefined || mod === undefined) return true;
-  return eng.some((t) => mod.includes(t));
+  return eng.some(t => mod.includes(t));
 }
 
 /**
@@ -40,7 +40,7 @@ export function compatibleMediaFor(
   engine: EngineCompat,
   media: readonly MediaDescriptor[],
 ): MediaDescriptor[] {
-  return media.filter((m) => mediaCompatibleWith(m, engine));
+  return media.filter(m => mediaCompatibleWith(m, engine));
 }
 
 /**

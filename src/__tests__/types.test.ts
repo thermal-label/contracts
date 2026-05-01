@@ -157,9 +157,7 @@ describe('device shapes', () => {
   });
 
   it('SupportStatus is the four-state union', () => {
-    expectTypeOf<SupportStatus>().toEqualTypeOf<
-      'verified' | 'partial' | 'broken' | 'untested'
-    >();
+    expectTypeOf<SupportStatus>().toEqualTypeOf<'verified' | 'partial' | 'broken' | 'untested'>();
   });
 
   it('UsbTransport.vid and pid are hex strings', () => {

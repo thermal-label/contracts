@@ -11,12 +11,7 @@
  * advertisement discovery, classic vs BLE pairing flows, and Web
  * Bluetooth being GATT-only by spec all force the separation.
  */
-export type TransportType =
-  | 'usb'
-  | 'tcp'
-  | 'serial'
-  | 'bluetooth-spp'
-  | 'bluetooth-gatt';
+export type TransportType = 'usb' | 'tcp' | 'serial' | 'bluetooth-spp' | 'bluetooth-gatt';
 
 /**
  * Verification status for a device, transport, or engine.

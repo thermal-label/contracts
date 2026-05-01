@@ -23,11 +23,7 @@ export type { MediaDescriptor } from './media.js';
 export type { RotateDirection } from './orientation.js';
 export { pickRotation } from './orientation.js';
 
-export {
-  compatibleMediaFor,
-  mediaCompatibleWith,
-  mediaIdentitiesMatch,
-} from './compatibility.js';
+export { compatibleMediaFor, mediaCompatibleWith, mediaIdentitiesMatch } from './compatibility.js';
 
 export type { EngineDescriptor, SupportedDevice } from './resolution.js';
 export { resolveSupportedDevices } from './resolution.js';

@@ -30,7 +30,13 @@ const registry = (devices: readonly DeviceEntry[]): DeviceRegistry => ({
   devices,
 });
 
-const ALL: ReadonlySet<TransportType> = new Set<TransportType>(['usb', 'tcp', 'serial', 'bluetooth-spp', 'bluetooth-gatt']);
+const ALL: ReadonlySet<TransportType> = new Set<TransportType>([
+  'usb',
+  'tcp',
+  'serial',
+  'bluetooth-spp',
+  'bluetooth-gatt',
+]);
 
 describe('resolveSupportedDevices', () => {
   it('returns single-engine device with allEnginesDrivable when protocol + transport match', () => {
@@ -72,8 +78,8 @@ describe('resolveSupportedDevices', () => {
     ]);
     const result = resolveSupportedDevices(reg, new Set(['lw-450']), ALL);
     expect(result).toHaveLength(1);
-    const drivable = result[0]?.engines.find((e) => e.role === 'label');
-    const undrivable = result[0]?.engines.find((e) => e.role === 'tape');
+    const drivable = result[0]?.engines.find(e => e.role === 'label');
+    const undrivable = result[0]?.engines.find(e => e.role === 'tape');
     expect(drivable?.drivable).toBe(true);
     expect(undrivable?.drivable).toBe(false);
     expect(result[0]?.allEnginesDrivable).toBe(false);

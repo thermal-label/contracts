@@ -71,19 +71,19 @@ export function resolveSupportedDevices(
   protocols: ReadonlySet<string>,
   transports: ReadonlySet<TransportType>,
 ): SupportedDevice[] {
-  return registry.devices.flatMap((dev) => {
+  return registry.devices.flatMap(dev => {
     const declaredTransports = (Object.keys(dev.transports) as TransportType[]).filter(
-      (t) => dev.transports[t] !== undefined,
+      t => dev.transports[t] !== undefined,
     );
-    const drivableTransports = declaredTransports.filter((t) => transports.has(t));
-    const undrivableTransports = declaredTransports.filter((t) => !transports.has(t));
+    const drivableTransports = declaredTransports.filter(t => transports.has(t));
+    const undrivableTransports = declaredTransports.filter(t => !transports.has(t));
     if (drivableTransports.length === 0) return [];
 
-    const engines: EngineDescriptor[] = dev.engines.map((e) => ({
+    const engines: EngineDescriptor[] = dev.engines.map(e => ({
       ...e,
       drivable: protocols.has(e.protocol),
     }));
-    if (!engines.some((e) => e.drivable)) return [];
+    if (!engines.some(e => e.drivable)) return [];
 
     return [
       {
@@ -91,7 +91,7 @@ export function resolveSupportedDevices(
         engines,
         drivableTransports,
         undrivableTransports,
-        allEnginesDrivable: engines.every((e) => e.drivable),
+        allEnginesDrivable: engines.every(e => e.drivable),
       },
     ];
   });
