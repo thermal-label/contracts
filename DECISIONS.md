@@ -109,3 +109,57 @@ been removed — `eslint.config.js` is back to a plain re-export.
 **Why:** Trusted publishing via OIDC avoids long-lived npm tokens. The
 `provenance` flag attaches a supply-chain attestation to the published
 package. This mirrors the modern npm best practice for CI publishing.
+
+## D11 — `EngineBind.tcp` not stubbed
+
+**Plan said (§3.1, point 4):** "Transport keys (`bind.usb`, future
+`bind.tcp`) carry transport-specific fields".
+**Chose:** Only `bind.usb` is defined today. `bind.tcp` is mentioned
+in JSDoc as a future extension but no field exists in the type.
+
+**Why:** A `tcp?: never` placeholder is meaningless from a type
+perspective and creates a contract claim ("you can pass tcp here, it
+just won't accept anything") that is worse than silence. When a
+non-USB composite device actually exists, add the key with a real
+schema — that is the right time to commit to a shape.
+
+## D12 — `compatibility.ts` helpers type against `Pick<PrintEngine, …>`
+
+**Plan said (§3.6):** signatures of `mediaCompatibleWith` and
+`compatibleMediaFor` use `EngineDescriptor`.
+**Chose:** Type the engine parameter as
+`Pick<PrintEngine, 'mediaCompatibility'>`.
+
+**Why:** The helpers only read `engine.mediaCompatibility`. Typing
+against the structural minimum lets the same helpers serve docs use
+(raw `PrintEngine` from a registry, no resolver involved) and runtime
+use (`EngineDescriptor` from `resolveSupportedDevices`) without an
+unnecessary import or type widening. `EngineDescriptor extends
+PrintEngine`, so it satisfies the constraint either way.
+
+## D13 — `DeviceEntry.capabilities` typed as `Readonly<Record<string, unknown>>`
+
+**Plan said (§3.1, point 6):** chassis-level capabilities are an
+"open shape — drivers can extend without touching contracts".
+**Chose:** `Readonly<Record<string, unknown>>`.
+
+**Why:** ESLint's `@typescript-eslint/consistent-indexed-object-style`
+rejects pure `[k: string]: unknown` interfaces; `Record` is the
+preferred form. `Readonly<Record<…>>` matches the read-only intent
+of the registry shape (everything in the entry is a static fact, not
+a mutable bag). `PrintEngineCapabilities` keeps the inline index
+signature because it has named members alongside, which the rule
+permits.
+
+## D14 — `resolveSupportedDevices` filters out undrivable devices entirely
+
+**Plan said (§3.5):** describes the resolver's behaviour but doesn't
+explicitly say what to do with devices that are completely
+undrivable.
+**Chose:** Return only devices with ≥1 drivable transport AND ≥1
+drivable engine. Devices with zero of either are filtered out.
+
+**Why:** A picker showing a device the runtime cannot open or print
+to is a false promise. The resolver is for the "what can this build
+actually drive" question; a separate registry-introspection helper
+(if ever needed) can return the full list with drivability metadata.

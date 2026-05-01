@@ -80,3 +80,34 @@ Tracks completion of the steps in `PLAN.md` §9.
 - [x] `src/__tests__/orientation.test.ts` (new) — pickRotation truth table
 - [x] Gates green (typecheck, lint, format, test, build)
 
+## Step 9 — Generic device & media library (contracts shape)
+
+> Plan: [plans/backlog/generic-device-media-library.md](plans/backlog/generic-device-media-library.md)
+>
+> Scoped to contracts only — driver migrations land separately per their own plans.
+
+- [x] `src/media.ts` — add `skus` / `category` / `targetModels`
+- [x] `src/device.ts` — full rewrite to the registry shape (BREAKING):
+  - [x] Narrow `TransportType` to wire-protocol-only (`usb` / `tcp` / `serial` / `bluetooth-spp` / `bluetooth-gatt`)
+  - [x] Per-transport schemas: `UsbTransport` / `TcpTransport` / `SerialTransport` / `BluetoothSppTransport` / `BluetoothGattTransport`
+  - [x] `DeviceTransports` keyed object replacing the old transport string array
+  - [x] `PrintEngine` with `bind` (USB-composite + protocol-layer routing) and `PrintEngineCapabilities`
+  - [x] `DeviceSupport` / `DeviceReport` folding the per-driver `hardware-status.yaml` overlay inline
+  - [x] `DeviceEntry` replacing `DeviceDescriptor`
+  - [x] `DeviceRegistry` pinned to `schemaVersion: 1`
+- [x] `src/adapter.ts` / `src/discovery.ts` — switch to `DeviceEntry`
+- [x] `src/status.ts` — add `PrintOptions.engine`
+- [x] `src/errors.ts` — add `EngineRequiredError`
+- [x] `src/compatibility.ts` (new) — `mediaCompatibleWith` / `compatibleMediaFor` / `mediaIdentitiesMatch`
+- [x] `src/resolution.ts` (new) — `resolveSupportedDevices`, `EngineDescriptor`, `SupportedDevice` (uses `allEnginesDrivable` + `drivableTransports` / `undrivableTransports`, no combined `fullySupported` flag)
+- [x] `src/index.ts` — export the new surface
+- [x] `src/__tests__/types.test.ts` — assertions for the new shape
+- [x] `src/__tests__/errors.test.ts` — drop dead transport literals; add `EngineRequiredError`
+- [x] `src/__tests__/compatibility.test.ts` (new)
+- [x] `src/__tests__/resolution.test.ts` (new)
+- [x] Gates green (typecheck, lint, test, build) and 100 % coverage on runtime files
+
+> Driver migrations are tracked in each driver's own backlog plan
+> (`migrate-to-contracts-shape.md` in `labelwriter`, `brother-ql`,
+> `labelmanager`). Niimbot will conform on first non-stub commit.
+
