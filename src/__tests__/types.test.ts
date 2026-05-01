@@ -1,7 +1,12 @@
 import { describe, expectTypeOf, it } from 'vitest';
 
 import type {
-  DeviceDescriptor,
+  BluetoothGattTransport,
+  BluetoothSppTransport,
+  DeviceEntry,
+  DeviceRegistry,
+  DeviceSupport,
+  DeviceTransports,
   DiscoveredPrinter,
   MediaDescriptor,
   OpenOptions,
@@ -9,24 +14,33 @@ import type {
   PreviewOptions,
   PreviewPlane,
   PreviewResult,
+  PrintEngine,
   PrinterAdapter,
   PrinterDiscovery,
   PrinterError,
   PrinterStatus,
   PrintOptions,
+  SerialTransport,
+  SupportStatus,
+  TcpTransport,
   Transport,
   TransportType,
+  UsbTransport,
 } from '../index.js';
 
 describe('structural compatibility', () => {
-  it('a driver-extended DeviceDescriptor satisfies the base', () => {
-    interface BrotherQLDevice extends DeviceDescriptor {
+  it('a driver-extended DeviceEntry satisfies the base', () => {
+    interface BrotherQLDevice extends DeviceEntry {
       family: 'brother-ql';
-      headPins: 720 | 1296;
-      bytesPerRow: number;
-      twoColor: boolean;
     }
-    expectTypeOf<BrotherQLDevice>().toExtend<DeviceDescriptor>();
+    expectTypeOf<BrotherQLDevice>().toExtend<DeviceEntry>();
+  });
+
+  it('a driver-extended PrintEngine satisfies the base', () => {
+    interface BrotherQLEngine extends PrintEngine {
+      bytesPerRow: number;
+    }
+    expectTypeOf<BrotherQLEngine>().toExtend<PrintEngine>();
   });
 
   it('a driver-extended MediaDescriptor satisfies the base', () => {
@@ -132,15 +146,75 @@ describe('status shapes', () => {
 });
 
 describe('device shapes', () => {
-  it('DeviceDescriptor.vid and pid are optional numbers', () => {
-    expectTypeOf<DeviceDescriptor['vid']>().toEqualTypeOf<number | undefined>();
-    expectTypeOf<DeviceDescriptor['pid']>().toEqualTypeOf<number | undefined>();
+  it('TransportType is the wire-protocol-only union', () => {
+    expectTypeOf<TransportType>().toEqualTypeOf<
+      'usb' | 'tcp' | 'serial' | 'bluetooth-spp' | 'bluetooth-gatt'
+    >();
   });
 
-  it('TransportType is the expected union', () => {
-    expectTypeOf<TransportType>().toEqualTypeOf<
-      'usb' | 'tcp' | 'serial' | 'webusb' | 'web-serial' | 'web-bluetooth'
+  it('SupportStatus is the four-state union', () => {
+    expectTypeOf<SupportStatus>().toEqualTypeOf<
+      'verified' | 'partial' | 'broken' | 'untested'
     >();
+  });
+
+  it('UsbTransport.vid and pid are hex strings', () => {
+    expectTypeOf<UsbTransport['vid']>().toEqualTypeOf<string>();
+    expectTypeOf<UsbTransport['pid']>().toEqualTypeOf<string>();
+  });
+
+  it('TcpTransport.port is number; mdns optional', () => {
+    expectTypeOf<TcpTransport['port']>().toEqualTypeOf<number>();
+    expectTypeOf<TcpTransport['mdns']>().toEqualTypeOf<
+      { serviceType: string; subtypes?: readonly string[] } | undefined
+    >();
+  });
+
+  it('SerialTransport.defaultBaud is required', () => {
+    expectTypeOf<SerialTransport['defaultBaud']>().toEqualTypeOf<number>();
+  });
+
+  it('BluetoothSppTransport fields are all optional', () => {
+    expectTypeOf<Record<string, never>>().toExtend<BluetoothSppTransport>();
+  });
+
+  it('BluetoothGattTransport requires service + tx UUIDs', () => {
+    expectTypeOf<BluetoothGattTransport['serviceUuid']>().toEqualTypeOf<string>();
+    expectTypeOf<BluetoothGattTransport['txCharacteristicUuid']>().toEqualTypeOf<string>();
+  });
+
+  it('DeviceTransports keys are all optional (a stub passes)', () => {
+    expectTypeOf<Record<string, never>>().toExtend<DeviceTransports>();
+  });
+
+  it('DeviceEntry.engines is a readonly PrintEngine[]', () => {
+    expectTypeOf<DeviceEntry['engines']>().toEqualTypeOf<readonly PrintEngine[]>();
+  });
+
+  it('DeviceEntry.support is required', () => {
+    expectTypeOf<DeviceEntry['support']>().toEqualTypeOf<DeviceSupport>();
+  });
+
+  it('PrintEngine.bind.usb carries bInterfaceNumber', () => {
+    type Bind = NonNullable<PrintEngine['bind']>;
+    expectTypeOf<NonNullable<Bind['usb']>>().toEqualTypeOf<{ bInterfaceNumber: number }>();
+  });
+
+  it('PrintEngine.bind.address is optional number (opaque protocol-layer)', () => {
+    type Bind = NonNullable<PrintEngine['bind']>;
+    expectTypeOf<Bind['address']>().toEqualTypeOf<number | undefined>();
+  });
+
+  it('PrintEngine.capabilities allows mediaDetection / autocut and an open index', () => {
+    type Caps = NonNullable<PrintEngine['capabilities']>;
+    expectTypeOf<Caps['mediaDetection']>().toEqualTypeOf<boolean | undefined>();
+    expectTypeOf<Caps['autocut']>().toEqualTypeOf<boolean | undefined>();
+    // Index signature accepts arbitrary keys.
+    expectTypeOf<Caps[string]>().toEqualTypeOf<unknown>();
+  });
+
+  it('DeviceRegistry pins schemaVersion to 1', () => {
+    expectTypeOf<DeviceRegistry['schemaVersion']>().toEqualTypeOf<1>();
   });
 });
 

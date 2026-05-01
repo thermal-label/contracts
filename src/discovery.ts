@@ -1,5 +1,5 @@
 import type { PrinterAdapter } from './adapter.js';
-import type { DeviceDescriptor, TransportType } from './device.js';
+import type { DeviceEntry, TransportType } from './device.js';
 
 /**
  * A printer that was discovered on one of the supported transports.
@@ -9,8 +9,8 @@ import type { DeviceDescriptor, TransportType } from './device.js';
  * `openPrinter()` to open a specific device.
  */
 export interface DiscoveredPrinter {
-  /** Static description of the detected model. */
-  device: DeviceDescriptor;
+  /** Registry entry for the detected model. */
+  device: DeviceEntry;
 
   /** Serial number, if the transport exposes it (USB descriptor, mDNS TXT, etc.). */
   serialNumber?: string;
@@ -70,7 +70,7 @@ export interface OpenOptions {
  * packages to auto-detect printers regardless of family.
  */
 export interface PrinterDiscovery {
-  /** Driver family identifier — matches `DeviceDescriptor.family`. */
+  /** Driver family identifier — matches `DeviceEntry.family`. */
   readonly family: string;
 
   /** List connected printers on this driver's supported transports. */

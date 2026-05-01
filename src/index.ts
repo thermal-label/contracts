@@ -1,6 +1,22 @@
 export type { LabelBitmap, PaletteEntry, RawImageData } from './bitmap.js';
 
-export type { BluetoothConfig, DeviceDescriptor, TransportType } from './device.js';
+export type {
+  BluetoothGattTransport,
+  BluetoothSppTransport,
+  DeviceEntry,
+  DeviceRegistry,
+  DeviceReport,
+  DeviceSupport,
+  DeviceTransports,
+  EngineBind,
+  PrintEngine,
+  PrintEngineCapabilities,
+  SerialTransport,
+  SupportStatus,
+  TcpTransport,
+  TransportType,
+  UsbTransport,
+} from './device.js';
 
 export type { MediaDescriptor } from './media.js';
 

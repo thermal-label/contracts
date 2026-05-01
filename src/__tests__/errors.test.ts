@@ -39,14 +39,14 @@ describe('TransportTimeoutError', () => {
 
 describe('TransportClosedError', () => {
   it('sets name and transport field', () => {
-    const err = new TransportClosedError('web-bluetooth');
+    const err = new TransportClosedError('bluetooth-gatt');
     expect(err.name).toBe('TransportClosedError');
     expect(err.message).toBe('Transport is closed');
-    expect(err.transport).toBe('web-bluetooth');
+    expect(err.transport).toBe('bluetooth-gatt');
   });
 
   it('is instanceof TransportError and Error', () => {
-    const err = new TransportClosedError('webusb');
+    const err = new TransportClosedError('bluetooth-spp');
     expect(err).toBeInstanceOf(TransportError);
     expect(err).toBeInstanceOf(Error);
   });

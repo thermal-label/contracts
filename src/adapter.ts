@@ -1,5 +1,5 @@
 import type { RawImageData } from './bitmap.js';
-import type { DeviceDescriptor } from './device.js';
+import type { DeviceEntry } from './device.js';
 import type { MediaDescriptor } from './media.js';
 import type { PreviewOptions, PreviewResult } from './preview.js';
 import type { PrinterStatus, PrintOptions } from './status.js';
@@ -23,13 +23,13 @@ export interface PrinterAdapter {
   readonly connected: boolean;
 
   /**
-   * The device descriptor for the connected printer.
+   * The device entry for the connected printer.
    *
    * Useful for logging, diagnostics, and displaying VID/PID. Undefined
    * if the connection was established without device matching (e.g. a
    * raw TCP connection to a known IP).
    */
-  readonly device?: DeviceDescriptor;
+  readonly device?: DeviceEntry;
 
   /**
    * Print from a full-colour RGBA image.
