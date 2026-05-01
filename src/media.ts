@@ -133,4 +133,38 @@ export interface MediaDescriptor {
    * rounded rectangle degenerates to a circle.
    */
   cornerRadiusMm?: number;
+
+  /**
+   * Vendor SKUs for this media — e.g. Dymo `'30321'` / `'S0722400'`,
+   * Brother `'DK-22251'`. Mixed formats allowed; the registry does no
+   * validation. Used by docs (per-device "supported media" table) and
+   * by UI consumers that let users search by SKU.
+   */
+  skus?: readonly string[];
+
+  /**
+   * Coarse category for grouping in docs and UI. Driver-extensible;
+   * common values listed for cross-driver consistency.
+   */
+  category?:
+    | 'address'
+    | 'shipping'
+    | 'file-folder'
+    | 'multi-purpose'
+    | 'name-badge'
+    | 'barcode'
+    | 'price-tag'
+    | 'continuous'
+    | 'cartridge'
+    | 'tape'
+    | 'die-cut';
+
+  /**
+   * Devices this media is compatible with. Driver-defined string set;
+   * matched against `PrintEngine.mediaCompatibility`. Examples:
+   * `['standard']` (paper roll fits 672-dot heads),
+   * `['4xl', '5xl']` (wide-head only), `['duo']` (D1 cartridges).
+   * Omit = fits every device in the family.
+   */
+  targetModels?: readonly string[];
 }

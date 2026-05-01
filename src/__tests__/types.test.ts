@@ -62,6 +62,31 @@ describe('structural compatibility', () => {
     expectTypeOf<MediaDescriptor['cornerRadiusMm']>().toEqualTypeOf<number | undefined>();
   });
 
+  it('MediaDescriptor.skus is optional readonly string[]', () => {
+    expectTypeOf<MediaDescriptor['skus']>().toEqualTypeOf<readonly string[] | undefined>();
+  });
+
+  it('MediaDescriptor.targetModels is optional readonly string[]', () => {
+    expectTypeOf<MediaDescriptor['targetModels']>().toEqualTypeOf<readonly string[] | undefined>();
+  });
+
+  it('MediaDescriptor.category accepts the documented union', () => {
+    expectTypeOf<MediaDescriptor['category']>().toEqualTypeOf<
+      | 'address'
+      | 'shipping'
+      | 'file-folder'
+      | 'multi-purpose'
+      | 'name-badge'
+      | 'barcode'
+      | 'price-tag'
+      | 'continuous'
+      | 'cartridge'
+      | 'tape'
+      | 'die-cut'
+      | undefined
+    >();
+  });
+
   it('a driver-extended PrintOptions satisfies the base', () => {
     interface BrotherQLPrintOptions extends PrintOptions {
       autoCut?: boolean;
