@@ -229,6 +229,14 @@ describe('discovery shapes', () => {
     expectTypeOf<Record<string, never>>().toExtend<OpenOptions>();
   });
 
+  it('OpenOptions.deviceKey is optional string', () => {
+    expectTypeOf<OpenOptions['deviceKey']>().toEqualTypeOf<string | undefined>();
+  });
+
+  it('OpenOptions accepts a serialPath + deviceKey pair', () => {
+    expectTypeOf<{ serialPath: string; deviceKey: string }>().toExtend<OpenOptions>();
+  });
+
   it('PrinterDiscovery exposes family/listPrinters/openPrinter', () => {
     expectTypeOf<PrinterDiscovery>().toHaveProperty('family');
     expectTypeOf<PrinterDiscovery>().toHaveProperty('listPrinters');

@@ -82,7 +82,7 @@ Tracks completion of the steps in `PLAN.md` §9.
 
 ## Step 9 — Generic device & media library (contracts shape)
 
-> Plan: [plans/backlog/generic-device-media-library.md](plans/backlog/generic-device-media-library.md)
+> Plan: [plans/implemented/generic-device-media-library.md](plans/implemented/generic-device-media-library.md)
 >
 > Scoped to contracts only — driver migrations land separately per their own plans.
 
@@ -110,4 +110,16 @@ Tracks completion of the steps in `PLAN.md` §9.
 > Driver migrations are tracked in each driver's own backlog plan
 > (`migrate-to-contracts-shape.md` in `labelwriter`, `brother-ql`,
 > `labelmanager`). Niimbot will conform on first non-stub commit.
+
+## Step 10 — `OpenOptions.deviceKey` for non-enumerable transports
+
+> Plan: [plans/implemented/open-options-device-key.md](plans/implemented/open-options-device-key.md)
+>
+> Adds the caller-supplied registry key needed to resolve a descriptor
+> when the transport carries no model signal (serial / RFCOMM).
+
+- [x] `src/discovery.ts` — add optional `deviceKey?: string` to `OpenOptions`
+- [x] `src/__tests__/types.test.ts` — assert optional string + `serialPath + deviceKey` shape
+- [x] Bump self to `0.3.1`
+- [x] Gates green (typecheck, lint, test, build)
 
