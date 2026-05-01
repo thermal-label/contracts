@@ -35,6 +35,7 @@ export type { DiscoveredPrinter, OpenOptions, PrinterDiscovery } from './discove
 
 export {
   DeviceNotFoundError,
+  EngineRequiredError,
   MediaNotSpecifiedError,
   TransportClosedError,
   TransportError,

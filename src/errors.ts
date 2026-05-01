@@ -85,3 +85,26 @@ export class MediaNotSpecifiedError extends Error {
     this.name = 'MediaNotSpecifiedError';
   }
 }
+
+/**
+ * `PrinterAdapter.print()` was called on a multi-engine device whose
+ * protocol does not support firmware-side auto-routing, without an
+ * explicit `engine` in `PrintOptions`.
+ *
+ * Thrown by drivers when `options.engine` is omitted on devices like
+ * the LabelWriter Duo where the host has to pick a target engine
+ * up-front. The list of valid roles is included so the caller can
+ * surface a useful UX message.
+ */
+export class EngineRequiredError extends Error {
+  /** Available engine roles on the connected device. */
+  readonly availableEngines: readonly string[];
+
+  constructor(availableEngines: readonly string[]) {
+    super(
+      `This printer has multiple engines and does not support auto-routing. Specify options.engine — one of: ${availableEngines.join(', ')}.`,
+    );
+    this.name = 'EngineRequiredError';
+    this.availableEngines = availableEngines;
+  }
+}

@@ -108,6 +108,10 @@ describe('structural compatibility', () => {
     }
     expectTypeOf<BrotherQLPrintOptions>().toExtend<PrintOptions>();
   });
+
+  it('PrintOptions.engine is optional string', () => {
+    expectTypeOf<PrintOptions['engine']>().toEqualTypeOf<string | undefined>();
+  });
 });
 
 describe('preview shapes', () => {

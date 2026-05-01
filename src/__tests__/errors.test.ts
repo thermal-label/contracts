@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   DeviceNotFoundError,
+  EngineRequiredError,
   MediaNotSpecifiedError,
   TransportClosedError,
   TransportError,
@@ -102,5 +103,19 @@ describe('MediaNotSpecifiedError', () => {
 
   it('is an Error', () => {
     expect(new MediaNotSpecifiedError()).toBeInstanceOf(Error);
+  });
+});
+
+describe('EngineRequiredError', () => {
+  it('sets name and lists the available engine roles in the message', () => {
+    const err = new EngineRequiredError(['label', 'tape']);
+    expect(err.name).toBe('EngineRequiredError');
+    expect(err.message).toContain('label');
+    expect(err.message).toContain('tape');
+    expect(err.availableEngines).toEqual(['label', 'tape']);
+  });
+
+  it('is an Error', () => {
+    expect(new EngineRequiredError([])).toBeInstanceOf(Error);
   });
 });
