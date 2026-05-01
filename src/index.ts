@@ -23,6 +23,12 @@ export type { MediaDescriptor } from './media.js';
 export type { RotateDirection } from './orientation.js';
 export { pickRotation } from './orientation.js';
 
+export {
+  compatibleMediaFor,
+  mediaCompatibleWith,
+  mediaIdentitiesMatch,
+} from './compatibility.js';
+
 export type { PrinterError, PrinterStatus, PrintOptions } from './status.js';
 
 export type { Transport } from './transport.js';
