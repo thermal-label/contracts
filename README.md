@@ -48,7 +48,7 @@ Full docs at **<https://thermal-label.github.io/contracts/>**.
 
 | | |
 |---|---|
-| Runtime | Node ≥ 24, modern browsers (types only — no runtime gate) |
+| Runtime | Node ≥ 20.9 (Node 24 LTS recommended), modern browsers (types only — no runtime gate) |
 | Peer | `@mbtech-nl/bitmap` for `LabelBitmap` / `RawImageData` re-exports |
 | License | MIT |
 

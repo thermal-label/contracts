@@ -55,6 +55,9 @@
     "format": "prettier --write src"
   },
   "prettier": "@mbtech-nl/prettier-config",
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "dependencies": {
     "@mbtech-nl/bitmap": "^1.2.1"
   },
