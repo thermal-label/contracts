@@ -156,8 +156,8 @@ describe('device shapes', () => {
     >();
   });
 
-  it('SupportStatus is the four-state union', () => {
-    expectTypeOf<SupportStatus>().toEqualTypeOf<'verified' | 'partial' | 'broken' | 'untested'>();
+  it('SupportStatus is the three-state stored rung union', () => {
+    expectTypeOf<SupportStatus>().toEqualTypeOf<'verified' | 'partial' | 'unsupported'>();
   });
 
   it('UsbTransport.vid and pid are hex strings', () => {
@@ -194,6 +194,7 @@ describe('device shapes', () => {
   });
 
   it('DeviceEntry.support is required', () => {
+    // eslint-disable-next-line @typescript-eslint/no-deprecated -- alias kept during transition
     expectTypeOf<DeviceEntry['support']>().toEqualTypeOf<DeviceSupport>();
   });
 

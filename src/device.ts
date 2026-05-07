@@ -1,3 +1,5 @@
+import type { DeviceVerifications } from './verifications.js';
+
 /**
  * Wire-protocol-only transport types.
  *
@@ -14,14 +16,20 @@
 export type TransportType = 'usb' | 'tcp' | 'serial' | 'bluetooth-spp' | 'bluetooth-gatt';
 
 /**
- * Verification status for a device, transport, or engine.
+ * Legacy four-state verification status backing `DeviceSupport.status`
+ * and `DeviceReport.result`.
  *
- * - `'verified'` — known-good against a recent reporter.
- * - `'partial'` — works for some operations / paths but not all.
- * - `'broken'` — known-broken; do not promise support.
- * - `'untested'` — no accepted report yet.
+ * Superseded by `SupportStatus` (3-state stored) + `EffectiveStatus`
+ * (5-state rendered) in `./verifications.js`. Retained so the existing
+ * `support: { status: 'untested' }` authoring shape keeps type-checking
+ * during the alias transition; codegen maps the legacy rungs to the
+ * new ones (`'broken'` → `'unsupported'`, `'untested'` → absent).
+ *
+ * @deprecated Use `SupportStatus` from `./verifications.js` for stored
+ * rungs and `EffectiveStatus` for rendered status. Removed once all
+ * drivers have migrated their JSON5 to `verifications`.
  */
-export type SupportStatus = 'verified' | 'partial' | 'broken' | 'untested';
+export type LegacySupportStatus = 'verified' | 'partial' | 'broken' | 'untested';
 
 /**
  * USB transport parameters.
@@ -230,6 +238,11 @@ export interface PrintEngine {
  * already records — issue number, reporter, date, result. Folded
  * inline into the device entry so there is one source of truth per
  * driver instead of a parallel YAML overlay.
+ *
+ * @deprecated Superseded by `VerificationCell` in `./verifications.js`.
+ * The new shape drops `notes`, `reporter`, `os`, `selfVerified`, `result`
+ * — the linked GitHub issue carries those. Retained during the alias
+ * transition; removed in the cleanup PR once all drivers have migrated.
  */
 export interface DeviceReport {
   /** Issue / PR number where the report was accepted. */
@@ -242,7 +255,8 @@ export interface DeviceReport {
   date: string;
 
   /** Verification outcome from this report. */
-  result: SupportStatus;
+  // eslint-disable-next-line @typescript-eslint/no-deprecated -- intentional self-reference during alias transition
+  result: LegacySupportStatus;
 
   os?: 'Linux' | 'macOS' | 'Windows';
 
@@ -258,19 +272,28 @@ export interface DeviceReport {
  *
  * Always present on `DeviceEntry` (defaults to `{ status: 'untested' }`)
  * so consumer types stay unconditional.
+ *
+ * @deprecated Superseded by `DeviceVerifications` in
+ * `./verifications.js` (per-transport `VerificationCell`s, no
+ * `reports`/`lastVerified`/`packageVersion`/`quirks`/engine axis).
+ * Codegen synthesises this from `verifications` and maps legacy
+ * `status` values to the new rungs (`'broken'` → `'unsupported'`,
+ * `'untested'` → absent). Retained during the alias transition;
+ * removed in the cleanup PR once all drivers have migrated.
  */
+/* eslint-disable @typescript-eslint/no-deprecated -- intentional self-references during alias transition */
 export interface DeviceSupport {
   /** Worst-case status across declared transports and engines. */
-  status: SupportStatus;
+  status: LegacySupportStatus;
 
   /** Per-transport status, where the data records it. */
-  transports?: Partial<Record<TransportType, SupportStatus>>;
+  transports?: Partial<Record<TransportType, LegacySupportStatus>>;
 
   /**
    * Per-engine status — useful for the Duo's "label works, tape
    * doesn't" case. Keys must match `engines[].role`.
    */
-  engines?: Record<string, SupportStatus>;
+  engines?: Record<string, LegacySupportStatus>;
 
   /** ISO date of the most recent accepted report. */
   lastVerified?: string;
@@ -284,6 +307,7 @@ export interface DeviceSupport {
   /** Accepted verification reports backing the status above. */
   reports?: readonly DeviceReport[];
 }
+/* eslint-enable @typescript-eslint/no-deprecated */
 
 /**
  * A device entry in a driver's registry.
@@ -329,8 +353,24 @@ export interface DeviceEntry {
    */
   hardwareQuirks?: string;
 
-  /** Always defined; defaults to `{ status: 'untested' }`. */
+  /**
+   * Always defined; defaults to `{ status: 'untested' }`.
+   *
+   * @deprecated Author `verifications` instead. Kept populated by
+   * codegen (synthesised from `verifications` if present, else mapped
+   * from legacy authoring) so existing consumers keep working
+   * unchanged. Removed in the cleanup PR once all drivers migrate.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-deprecated -- alias transition
   support: DeviceSupport;
+
+  /**
+   * Per-transport stored verifications. Authored by hardware-report
+   * PRs; expanded at codegen time into a derived grid (see
+   * `expandVerifications` in `./expand.js`). When absent, codegen
+   * falls back to legacy `support.status`.
+   */
+  verifications?: DeviceVerifications;
 }
 
 /**

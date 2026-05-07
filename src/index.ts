@@ -1,5 +1,6 @@
 export type { LabelBitmap, PaletteEntry, RawImageData } from './bitmap.js';
 
+/* eslint-disable @typescript-eslint/no-deprecated -- deprecated types re-exported intentionally during alias transition */
 export type {
   BluetoothGattTransport,
   BluetoothSppTransport,
@@ -9,14 +10,30 @@ export type {
   DeviceSupport,
   DeviceTransports,
   EngineBind,
+  LegacySupportStatus,
   PrintEngine,
   PrintEngineCapabilities,
   SerialTransport,
-  SupportStatus,
   TcpTransport,
   TransportType,
   UsbTransport,
 } from './device.js';
+/* eslint-enable @typescript-eslint/no-deprecated */
+
+export type {
+  DeviceVerifications,
+  EffectiveStatus,
+  ExpandedCell,
+  SupportStatus,
+  VerificationCell,
+} from './verifications.js';
+
+export type {
+  ExpandedDeviceEntry,
+  ExpandedRegistry,
+  ExpandedVerificationGrid,
+} from './expand.js';
+export { expandVerifications, mapLegacyStatus } from './expand.js';
 
 export type { MediaDescriptor } from './media.js';
 

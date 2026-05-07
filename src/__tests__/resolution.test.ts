@@ -113,6 +113,7 @@ describe('resolveSupportedDevices', () => {
     const result = resolveSupportedDevices(reg, new Set(['lw-450']), ALL);
     expect(result[0]?.name).toBe('LW_450');
     expect(result[0]?.family).toBe('test');
+    // eslint-disable-next-line @typescript-eslint/no-deprecated -- alias kept during transition
     expect(result[0]?.support.status).toBe('untested');
   });
 });
