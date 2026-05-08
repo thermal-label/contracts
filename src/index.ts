@@ -28,14 +28,17 @@ export type {
   VerificationCell,
 } from './verifications.js';
 
-export type {
-  ExpandedDeviceEntry,
-  ExpandedRegistry,
-  ExpandedVerificationGrid,
-} from './expand.js';
+export type { ExpandedDeviceEntry, ExpandedRegistry, ExpandedVerificationGrid } from './expand.js';
 export { expandVerifications, mapLegacyStatus } from './expand.js';
 
 export type { MediaDescriptor } from './media.js';
+
+export type { MediaPrintableAreaOverride, PrintableArea } from './printable-area.js';
+export {
+  getForcedTrailingFeedMm,
+  getPrintableArea,
+  ZERO_PRINTABLE_AREA,
+} from './printable-area.js';
 
 export type { RotateDirection } from './orientation.js';
 export { pickRotation } from './orientation.js';
