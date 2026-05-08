@@ -44,29 +44,19 @@ export const ZERO_PRINTABLE_AREA: PrintableArea = Object.freeze({
 });
 
 /**
- * Per-roll printable-area override surfaced by media that carries
- * physical dead-zone data of its own (today: the LabelWriter 5xx NFC
- * tag, whose `SkuInfo` exposes per-SKU `printableHorizontalOffsetMm`
- * and `printableVerticalOffsetMm`).
+ * Internal shape — per-roll printable-area override surfaced by media
+ * that carries physical dead-zone data of its own (today: the
+ * LabelWriter 5xx NFC tag, whose `SkuInfo` exposes per-SKU
+ * `printableHorizontalOffsetMm` and `printableVerticalOffsetMm`).
  *
- * Both fields are optional and additive on top of the base
- * `MediaDescriptor`. Drivers that don't carry per-roll truth simply
- * never populate them; `getPrintableArea(engine, media)` falls back
- * to the engine-level field and finally to zeros.
- *
- * The two-scalar shape mirrors the SkuInfo tag — a single inset on
- * each axis. The horizontal scalar is interpreted as `left` and the
- * vertical scalar as `leading`; `right` and `trailing` stay at the
- * engine-level values (or zero) because the tag does not encode them.
+ * Drivers that ship per-roll truth extend `MediaDescriptor` with these
+ * well-known field names directly (see
+ * `labelwriter-core/src/types.ts`); other media descriptors simply
+ * don't carry the keys. `getPrintableArea` reads them via structural
+ * narrowing — the type isn't part of the public contracts surface.
  */
-export interface MediaPrintableAreaOverride {
-  /**
-   * Horizontal (head-axis) inset, in mm. Maps to `PrintableArea.left`.
-   */
+interface MediaPrintableAreaOverride {
   readonly printableHorizontalOffsetMm?: number;
-  /**
-   * Vertical (feed-axis) inset, in mm. Maps to `PrintableArea.leading`.
-   */
   readonly printableVerticalOffsetMm?: number;
 }
 

@@ -33,7 +33,7 @@ export { expandVerifications, mapLegacyStatus } from './expand.js';
 
 export type { MediaDescriptor } from './media.js';
 
-export type { MediaPrintableAreaOverride, PrintableArea } from './printable-area.js';
+export type { PrintableArea } from './printable-area.js';
 export {
   getForcedTrailingFeedMm,
   getPrintableArea,
