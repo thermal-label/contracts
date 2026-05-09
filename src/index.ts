@@ -54,11 +54,17 @@ export type { Transport } from './transport.js';
 
 export type { PreviewOptions, PreviewPlane, PreviewResult } from './preview.js';
 
-export type { PrinterAdapter } from './adapter.js';
+export type { PrinterAdapter, PrinterAdapterMap } from './adapter.js';
 
-export type { DiscoveredPrinter, OpenOptions, PrinterDiscovery } from './discovery.js';
+export type {
+  ConnectOptions,
+  DiscoveredPrinter,
+  OpenOptions,
+  PrinterDiscovery,
+} from './discovery.js';
 
 export {
+  DeviceIdentificationRequiredError,
   DeviceNotFoundError,
   EngineRequiredError,
   MediaNotSpecifiedError,

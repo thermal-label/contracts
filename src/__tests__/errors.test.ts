@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  DeviceIdentificationRequiredError,
   DeviceNotFoundError,
   EngineRequiredError,
   MediaNotSpecifiedError,
@@ -9,6 +10,7 @@ import {
   TransportTimeoutError,
   UnsupportedOperationError,
 } from '../index.js';
+import type { DeviceEntry } from '../index.js';
 
 describe('TransportError', () => {
   it('sets name, message, and transport field', () => {
@@ -117,5 +119,28 @@ describe('EngineRequiredError', () => {
 
   it('is an Error', () => {
     expect(new EngineRequiredError([])).toBeInstanceOf(Error);
+  });
+});
+
+describe('DeviceIdentificationRequiredError', () => {
+  const candidate = { key: 'QL_820NWBc', name: 'QL-820NWBc' } as unknown as DeviceEntry;
+
+  it('sets name, candidates, and continueWith closure', () => {
+    const continueWith = (): Promise<Record<string, never>> => Promise.resolve({});
+    const err = new DeviceIdentificationRequiredError([candidate], continueWith);
+    expect(err.name).toBe('DeviceIdentificationRequiredError');
+    expect(err.candidates).toEqual([candidate]);
+    expect(err.continueWith).toBe(continueWith);
+  });
+
+  it('lists candidate keys in the message', () => {
+    const err = new DeviceIdentificationRequiredError([candidate], () => Promise.resolve({}));
+    expect(err.message).toContain('QL_820NWBc');
+  });
+
+  it('is an Error', () => {
+    expect(new DeviceIdentificationRequiredError([], () => Promise.resolve({}))).toBeInstanceOf(
+      Error,
+    );
   });
 });
