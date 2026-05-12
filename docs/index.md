@@ -121,4 +121,5 @@ For working implementations, see the existing drivers:
 | License | MIT |
 
 [Source on GitHub](https://github.com/thermal-label/contracts) ·
-[npm](https://www.npmjs.com/package/@thermal-label/contracts)
+[npm](https://www.npmjs.com/package/@thermal-label/contracts) ·
+[API reference](./api/README)
