@@ -56,6 +56,8 @@ export type { PreviewOptions, PreviewPlane, PreviewResult } from './preview.js';
 
 export type { PrinterAdapter, PrinterAdapterMap } from './adapter.js';
 
+export { DEFAULT_POLLING_INTERVAL_MS, pollingOnStatus } from './polling-on-status.js';
+
 export type {
   ConnectOptions,
   DiscoveredPrinter,
