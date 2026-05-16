@@ -64,6 +64,8 @@ export type { PrinterAdapter, PrinterAdapterMap } from './adapter.js';
 
 export { DEFAULT_POLLING_INTERVAL_MS, pollingOnStatus } from './polling-on-status.js';
 
+export { WriteSerializer } from './serializer.js';
+
 export type {
   ConnectOptions,
   DiscoveredPrinter,
