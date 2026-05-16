@@ -20,6 +20,7 @@ import type {
   PrinterError,
   PrinterStatus,
   PrintOptions,
+  StatusDetail,
   SerialTransport,
   SupportStatus,
   TcpTransport,
@@ -146,6 +147,20 @@ describe('status shapes', () => {
 
   it('PrinterStatus.rawBytes is Uint8Array', () => {
     expectTypeOf<PrinterStatus['rawBytes']>().toEqualTypeOf<Uint8Array>();
+  });
+
+  it('PrinterStatus.details is an optional readonly StatusDetail[]', () => {
+    expectTypeOf<PrinterStatus['details']>().toEqualTypeOf<
+      readonly StatusDetail[] | undefined
+    >();
+  });
+
+  it('StatusDetail carries label, value, and optional severity', () => {
+    expectTypeOf<StatusDetail['label']>().toEqualTypeOf<string>();
+    expectTypeOf<StatusDetail['value']>().toEqualTypeOf<string>();
+    expectTypeOf<StatusDetail['severity']>().toEqualTypeOf<
+      'info' | 'warn' | 'error' | undefined
+    >();
   });
 });
 

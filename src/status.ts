@@ -59,6 +59,30 @@ export interface PrinterError {
 }
 
 /**
+ * A driver-formatted diagnostic row.
+ *
+ * Drivers decode protocol-specific status fields (print density, head
+ * voltage, labels remaining, ...) into pre-formatted `{label, value}`
+ * pairs that a consumer renders verbatim — no consumer needs to know
+ * any vendor field names. The driver owns formatting; the harness (or
+ * any other consumer) renders any device blindly, with zero change
+ * when a new model lands.
+ */
+export interface StatusDetail {
+  /** Short label, e.g. `'Print density'`, `'Labels remaining'`. */
+  label: string;
+
+  /** Pre-formatted value, e.g. `'100%'`, `'47'`, `'0x1A1A'`. */
+  value: string;
+
+  /**
+   * Severity hint — drives row colour where the consumer renders it.
+   * Defaults to `'info'` when omitted.
+   */
+  severity?: 'info' | 'warn' | 'error';
+}
+
+/**
  * Runtime status of a printer.
  *
  * Returned by `PrinterAdapter.getStatus()` and used to drive media
@@ -98,4 +122,14 @@ export interface PrinterStatus {
    * interface should be preferred for normal use.
    */
   rawBytes: Uint8Array;
+
+  /**
+   * Driver-formatted diagnostic rows decoded from the protocol status.
+   *
+   * Optional and additive — drivers that decode nothing beyond
+   * `ready` / `mediaLoaded` / `errors` leave it undefined. Each row is
+   * a pre-formatted `{label, value}` pair the consumer renders
+   * verbatim; the driver owns all formatting (see {@link StatusDetail}).
+   */
+  details?: readonly StatusDetail[];
 }
