@@ -1,6 +1,7 @@
 import { describe, expectTypeOf, it } from 'vitest';
 
 import type {
+  BatteryStatus,
   BluetoothGattTransport,
   BluetoothSppTransport,
   DeviceEntry,
@@ -161,6 +162,15 @@ describe('status shapes', () => {
     expectTypeOf<StatusDetail['severity']>().toEqualTypeOf<
       'info' | 'warn' | 'error' | undefined
     >();
+  });
+
+  it('PrinterStatus.battery is an optional BatteryStatus', () => {
+    expectTypeOf<PrinterStatus['battery']>().toEqualTypeOf<BatteryStatus | undefined>();
+  });
+
+  it('BatteryStatus carries optional fraction and charging', () => {
+    expectTypeOf<BatteryStatus['fraction']>().toEqualTypeOf<number | undefined>();
+    expectTypeOf<BatteryStatus['charging']>().toEqualTypeOf<boolean | undefined>();
   });
 });
 

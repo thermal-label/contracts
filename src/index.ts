@@ -48,7 +48,13 @@ export { compatibleMediaFor, mediaCompatibleWith, mediaIdentitiesMatch } from '.
 export type { EngineDescriptor, SupportedDevice } from './resolution.js';
 export { resolveSupportedDevices } from './resolution.js';
 
-export type { PrinterError, PrinterStatus, PrintOptions, StatusDetail } from './status.js';
+export type {
+  BatteryStatus,
+  PrinterError,
+  PrinterStatus,
+  PrintOptions,
+  StatusDetail,
+} from './status.js';
 
 export type { Transport } from './transport.js';
 
