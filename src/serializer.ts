@@ -63,7 +63,7 @@ export class WriteSerializer {
       // Wait for the prior operation; swallow its rejection here so a
       // failed earlier job doesn't reject this caller — that caller
       // already saw its own rejection.
-      await prior.catch(() => undefined);
+      await prior.catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
       return await fn();
     } finally {
       release();

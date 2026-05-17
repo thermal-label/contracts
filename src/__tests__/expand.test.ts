@@ -4,9 +4,7 @@ import type { DeviceEntry, DeviceRegistry } from '../device.js';
 import type { DeviceVerifications } from '../verifications.js';
 import { expandVerifications, mapLegacyStatus } from '../expand.js';
 
-function makeDevice(
-  overrides: Partial<DeviceEntry> & Pick<DeviceEntry, 'key'>,
-): DeviceEntry {
+function makeDevice(overrides: Partial<DeviceEntry> & Pick<DeviceEntry, 'key'>): DeviceEntry {
   return {
     name: overrides.key,
     family: 'driver-x',
@@ -78,9 +76,7 @@ describe('expandVerifications', () => {
         }),
       ]);
       const out = expandVerifications(reg);
-      expect(out.devices.find(d => d.key === 'B')!.verificationGrid.usb?.status).toBe(
-        'unverified',
-      );
+      expect(out.devices.find(d => d.key === 'B')!.verificationGrid.usb?.status).toBe('unverified');
     });
 
     it('does not lift across different transports', () => {
@@ -96,9 +92,7 @@ describe('expandVerifications', () => {
         }),
       ]);
       const out = expandVerifications(reg);
-      expect(out.devices.find(d => d.key === 'B')!.verificationGrid.tcp?.status).toBe(
-        'unverified',
-      );
+      expect(out.devices.find(d => d.key === 'B')!.verificationGrid.tcp?.status).toBe('unverified');
     });
   });
 
@@ -149,9 +143,7 @@ describe('expandVerifications', () => {
         makeDevice({ key: 'B' }),
       ]);
       const out = expandVerifications(reg);
-      expect(out.devices.find(d => d.key === 'B')!.verificationGrid.usb?.status).toBe(
-        'unverified',
-      );
+      expect(out.devices.find(d => d.key === 'B')!.verificationGrid.usb?.status).toBe('unverified');
     });
 
     it('`partial` does not propagate cross-transport', () => {
@@ -178,9 +170,7 @@ describe('expandVerifications', () => {
         makeDevice({ key: 'B' }),
       ]);
       const out = expandVerifications(reg);
-      expect(out.devices.find(d => d.key === 'B')!.verificationGrid.usb?.status).toBe(
-        'unverified',
-      );
+      expect(out.devices.find(d => d.key === 'B')!.verificationGrid.usb?.status).toBe('unverified');
     });
   });
 

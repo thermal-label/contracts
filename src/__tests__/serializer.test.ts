@@ -86,7 +86,7 @@ describe('WriteSerializer', () => {
 
     // Swallow the rejection so it doesn't surface as unhandled.
     const failing = serializer.run(() => Promise.reject(new Error('boom')));
-    failing.catch(() => undefined);
+    failing.catch(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
 
     await expect(serializer.run(() => Promise.resolve('survived'))).resolves.toBe('survived');
   });
