@@ -16,7 +16,7 @@ Pure function over the registry shapes — no I/O, no runtime state.
 | Parameter | Type |
 | ------ | ------ |
 | `media` | [`MediaDescriptor`](../interfaces/MediaDescriptor.md) |
-| `engine` | `EngineCompat` |
+| `engine` | [`EngineCompat`](../type-aliases/EngineCompat.md) |
 
 ## Returns
 

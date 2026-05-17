@@ -12,11 +12,13 @@
 | [TransportError](classes/TransportError.md) | Base class for transport-layer errors. |
 | [TransportTimeoutError](classes/TransportTimeoutError.md) | A read timed out waiting for bytes from the printer. |
 | [UnsupportedOperationError](classes/UnsupportedOperationError.md) | The requested operation is not supported by this driver, printer, or media. |
+| [WriteSerializer](classes/WriteSerializer.md) | A job-scoped write serializer for driver transport access. |
 
 ## Interfaces
 
 | Interface | Description |
 | ------ | ------ |
+| [BatteryStatus](interfaces/BatteryStatus.md) | Battery state of a printer, when the device exposes one. |
 | [BluetoothGattTransport](interfaces/BluetoothGattTransport.md) | Bluetooth Low Energy GATT. |
 | [BluetoothSppTransport](interfaces/BluetoothSppTransport.md) | Bluetooth SPP (Serial Port Profile, classic Bluetooth). |
 | [DeviceEntry](interfaces/DeviceEntry.md) | A device entry in a driver's registry. |
@@ -47,6 +49,7 @@
 | [PrintOptions](interfaces/PrintOptions.md) | Options for a single `PrinterAdapter.print()` call. |
 | [RawImageData](interfaces/RawImageData.md) | Raw RGBA image data, compatible with browser ImageData and @napi-rs/canvas ImageData. |
 | [SerialTransport](interfaces/SerialTransport.md) | Physical serial transport parameters (UART / USB-serial). |
+| [StatusDetail](interfaces/StatusDetail.md) | A driver-formatted diagnostic row. |
 | [SupportedDevice](interfaces/SupportedDevice.md) | A device entry resolved against the host runtime's protocol and transport implementations. |
 | [TcpTransport](interfaces/TcpTransport.md) | TCP transport parameters. |
 | [Transport](interfaces/Transport.md) | A bidirectional byte channel to a printer. |
@@ -60,6 +63,7 @@
 | [ConnectOptions](type-aliases/ConnectOptions.md) | Options for the unified driver-web `requestPrinters(opts)` factory. |
 | [DeviceVerifications](type-aliases/DeviceVerifications.md) | Per-device authoring block. |
 | [EffectiveStatus](type-aliases/EffectiveStatus.md) | Render-time status surfaced after `expandVerifications`. |
+| [EngineCompat](type-aliases/EngineCompat.md) | Engine acceptance is described by `PrintEngine.mediaCompatibility` (which media classes the head accepts) and media advertise which device classes they fit via `MediaDescriptor.targetModels`. Both are driver-defined string sets, matched as set intersection. |
 | [ExpandedVerificationGrid](type-aliases/ExpandedVerificationGrid.md) | Per-device expanded grid: `transport → ExpandedCell`. Only transports the device declares appear; any cell with no direct observation and no propagation lift surfaces as `{ status: 'unverified' }`. |
 | [~~LegacySupportStatus~~](type-aliases/LegacySupportStatus.md) | Legacy four-state verification status backing `DeviceSupport.status` and `DeviceReport.result`. |
 | [PrinterAdapterMap](type-aliases/PrinterAdapterMap.md) | Map from engine role → PrinterAdapter for a connected device. |
@@ -71,6 +75,7 @@
 
 | Variable | Description |
 | ------ | ------ |
+| [DEFAULT\_POLLING\_INTERVAL\_MS](variables/DEFAULT_POLLING_INTERVAL_MS.md) | Default poll cadence used by `pollingOnStatus`. Picked to match the harness shell's pre-refactor `setInterval` cadence so the visible status-pill freshness stays the same. |
 | [ZERO\_PRINTABLE\_AREA](variables/ZERO_PRINTABLE_AREA.md) | The all-zero `PrintableArea` returned by `getPrintableArea` when neither the engine nor the media carries dead-zone data. |
 
 ## Functions
@@ -85,4 +90,5 @@
 | [mediaCompatibleWith](functions/mediaCompatibleWith.md) | Returns `true` iff the media is compatible with the engine. |
 | [mediaIdentitiesMatch](functions/mediaIdentitiesMatch.md) | Returns `true` iff two media descriptors describe the same physical media. |
 | [pickRotation](functions/pickRotation.md) | Pick the rotation value to pass to `renderImage` / `renderMultiPlaneImage`. |
+| [pollingOnStatus](functions/pollingOnStatus.md) | Build an `onStatus` implementation for drivers whose printers don't push spontaneous status frames (LM / LW today; anything where `getStatus()` is a discrete request/response cycle). |
 | [resolveSupportedDevices](functions/resolveSupportedDevices.md) | Filter a registry down to the devices a host runtime can actually drive, given the set of registered protocols and transport implementations. |

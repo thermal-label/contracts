@@ -14,7 +14,7 @@ connected printer can print.
 
 | Parameter | Type |
 | ------ | ------ |
-| `engine` | `EngineCompat` |
+| `engine` | [`EngineCompat`](../type-aliases/EngineCompat.md) |
 | `media` | readonly [`MediaDescriptor`](../interfaces/MediaDescriptor.md)[] |
 
 ## Returns
