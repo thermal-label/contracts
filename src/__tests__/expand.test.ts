@@ -257,6 +257,31 @@ describe('expandVerifications', () => {
     });
   });
 
+  describe('degenerate inputs', () => {
+    it('a device declaring zero transports rolls up to `unverified`', () => {
+      const reg = makeRegistry([makeDevice({ key: 'A', transports: {} })]);
+      const out = expandVerifications(reg);
+      expect(out.devices[0]!.verificationGrid).toEqual({});
+      expect(out.devices[0]!.supportStatus).toBe('unverified');
+    });
+
+    it('a device with no engines is excluded from the sibling-protocol index', () => {
+      const reg = makeRegistry([
+        makeDevice({
+          key: 'A',
+          engines: [],
+          verifications: { usb: { status: 'verified' } },
+        }),
+        makeDevice({ key: 'B' }),
+      ]);
+      const out = expandVerifications(reg);
+      // A has no engine → no protocol → never indexed as a sibling,
+      // so B does not inherit A's verified usb cell.
+      const b = out.devices.find(d => d.key === 'B')!;
+      expect(b.verificationGrid.usb?.status).toBe('unverified');
+    });
+  });
+
   it('rollupStatus picks worst-case across declared transports', () => {
     const reg = makeRegistry([
       makeDevice({

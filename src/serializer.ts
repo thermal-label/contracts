@@ -53,9 +53,12 @@ export class WriteSerializer {
    */
   async run<T>(fn: () => Promise<T>): Promise<T> {
     const prior = this.tail;
+    /* v8 ignore start -- placeholder, always replaced synchronously by
+       the Promise executor below */
     let release: () => void = () => {
       // Replaced synchronously below.
     };
+    /* v8 ignore stop */
     this.tail = new Promise<void>(resolve => {
       release = resolve;
     });

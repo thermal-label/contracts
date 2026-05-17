@@ -60,6 +60,7 @@ function isMultiEngine(entry: DeviceEntry): boolean {
 }
 
 function singleEngineProtocol(entry: DeviceEntry): string | undefined {
+  /* v8 ignore next -- defensive: both callers already gate on isMultiEngine */
   if (isMultiEngine(entry)) return undefined;
   const eng = entry.engines[0];
   return eng?.protocol;
@@ -84,9 +85,9 @@ function rollupStatus(grid: ExpandedVerificationGrid): EffectiveStatus {
   for (const cell of Object.values(grid)) {
     present.add(cell.status);
   }
-  if (present.size === 0) return 'unverified';
-  for (const r of ranking) if (present.has(r)) return r;
-  return 'unverified';
+  // First match wins. An empty grid (a device declaring zero
+  // transports) finds nothing and falls through to `unverified`.
+  return ranking.find(r => present.has(r)) ?? 'unverified';
 }
 
 /**
@@ -175,6 +176,7 @@ export function expandVerifications(registry: DeviceRegistry): ExpandedRegistry 
           const siblings = verifiedByProtoTransport.get(k);
           if (siblings) {
             for (const s of siblings) {
+              /* v8 ignore next -- unreachable: a self-verified transport already continued at the direct-verified guard */
               if (s.deviceKey === device.key) continue;
               provenance.push({ vector: 'sibling-protocol', from: s });
             }
