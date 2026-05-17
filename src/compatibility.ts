@@ -12,7 +12,7 @@ import type { MediaDescriptor } from './media.js';
  * driver's registry, and media without `targetModels` fits every
  * device in the family.
  */
-type EngineCompat = Pick<PrintEngine, 'mediaCompatibility'>;
+export type EngineCompat = Pick<PrintEngine, 'mediaCompatibility'>;
 
 /**
  * Returns `true` iff the media is compatible with the engine.

@@ -43,6 +43,7 @@ export {
 export type { RotateDirection } from './orientation.js';
 export { pickRotation } from './orientation.js';
 
+export type { EngineCompat } from './compatibility.js';
 export { compatibleMediaFor, mediaCompatibleWith, mediaIdentitiesMatch } from './compatibility.js';
 
 export type { EngineDescriptor, SupportedDevice } from './resolution.js';
