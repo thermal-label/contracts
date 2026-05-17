@@ -87,8 +87,8 @@ export interface StatusDetail {
  *
  * Minimal and normalised: every battery-bearing driver maps its
  * vendor-specific reading onto a single `fraction` in `0..1`. A
- * device that reports a coarse bucket (e.g. LetraTag's 0..3 level)
- * normalises it — `level / levelMax` — rather than carrying a parallel
+ * device that reports a coarse bucket (e.g. a 0..3 level) normalises
+ * it — `level / levelMax` — rather than carrying a parallel
  * `level` + `levelMax` representation. Drivers that distinguish
  * specific states (empty, charging) surface those as `errors[]` /
  * `charging` rather than as extra battery fields.
@@ -163,8 +163,9 @@ export interface PrinterStatus {
    * Battery state, when the device has a battery and reports it.
    *
    * Undefined for AC/USB-powered devices (LabelWriter, brother-ql,
-   * LabelManager) — only battery-bearing drivers such as LetraTag
-   * populate it. See {@link BatteryStatus}.
+   * LabelManager) — only battery-bearing drivers that expose battery
+   * telemetry, such as the niimbot-class portable printers, populate
+   * it. See {@link BatteryStatus}.
    */
   battery?: BatteryStatus;
 }
