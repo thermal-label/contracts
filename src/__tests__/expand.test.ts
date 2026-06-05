@@ -213,8 +213,13 @@ describe('expandVerifications', () => {
     });
   });
 
-  describe('multi-engine carve-out', () => {
-    it('multi-engine devices skip propagation entirely (no cross-transport lift)', () => {
+  describe('multi-engine propagation (matched engine signature)', () => {
+    const duoEngines = [
+      { role: 'label', protocol: 'proto-a', dpi: 300, headDots: 600 },
+      { role: 'tape', protocol: 'proto-b', dpi: 180, headDots: 128 },
+    ];
+
+    it('cross-transport lifts a multi-engine device’s other transports', () => {
       const reg = makeRegistry([
         makeDevice({
           key: 'DUO',
@@ -222,38 +227,62 @@ describe('expandVerifications', () => {
             usb: { vid: '0x1', pid: '0x1' },
             tcp: { port: 9100 },
           },
-          engines: [
-            { role: 'label', protocol: 'proto-a', dpi: 300, headDots: 600 },
-            { role: 'tape', protocol: 'proto-b', dpi: 180, headDots: 128 },
-          ],
+          engines: duoEngines,
           verifications: { usb: { status: 'verified' } },
         }),
       ]);
       const out = expandVerifications(reg);
       const duo = out.devices[0]!;
-      // Direct usb still recorded.
       expect(duo.verificationGrid.usb?.status).toBe('verified');
-      // tcp does NOT lift to expected on a multi-engine device.
-      expect(duo.verificationGrid.tcp?.status).toBe('unverified');
+      // tcp now lifts via cross-transport — multi-engine is no longer
+      // carved out of propagation.
+      expect(duo.verificationGrid.tcp?.status).toBe('expected');
     });
 
-    it('multi-engine devices do not contribute to the sibling-protocol index', () => {
+    it('lifts a sibling multi-engine device with the same engine signature', () => {
       const reg = makeRegistry([
-        // Multi-engine with a verified usb cell whose first engine is proto-a.
         makeDevice({
-          key: 'DUO',
-          engines: [
-            { role: 'label', protocol: 'proto-a', dpi: 300, headDots: 600 },
-            { role: 'tape', protocol: 'proto-b', dpi: 180, headDots: 128 },
-          ],
+          key: 'DUO_A',
+          engines: duoEngines,
           verifications: { usb: { status: 'verified' } },
         }),
-        // Single-engine sibling on proto-a — should NOT inherit from DUO.
+        makeDevice({ key: 'DUO_B', engines: duoEngines }),
+      ]);
+      const out = expandVerifications(reg);
+      const b = out.devices.find(d => d.key === 'DUO_B')!;
+      expect(b.verificationGrid.usb?.status).toBe('expected');
+      expect(b.verificationGrid.usb?.propagatedFrom?.[0]).toEqual({
+        vector: 'sibling-protocol',
+        from: { deviceKey: 'DUO_A', transport: 'usb' },
+      });
+    });
+
+    it('does not lift a device whose engine set differs', () => {
+      const reg = makeRegistry([
+        // Duo-shaped: proto-a + proto-b.
+        makeDevice({
+          key: 'DUO',
+          engines: duoEngines,
+          verifications: { usb: { status: 'verified' } },
+        }),
+        // Twin-shaped: proto-a + proto-a — different signature, no lift.
+        makeDevice({
+          key: 'TWIN',
+          engines: [
+            { role: 'left', protocol: 'proto-a', dpi: 300, headDots: 600 },
+            { role: 'right', protocol: 'proto-a', dpi: 300, headDots: 600 },
+          ],
+        }),
+        // Single-engine proto-a — different signature, no lift.
         makeDevice({ key: 'SOLO' }),
       ]);
       const out = expandVerifications(reg);
-      const solo = out.devices.find(d => d.key === 'SOLO')!;
-      expect(solo.verificationGrid.usb?.status).toBe('unverified');
+      expect(out.devices.find(d => d.key === 'TWIN')!.verificationGrid.usb?.status).toBe(
+        'unverified',
+      );
+      expect(out.devices.find(d => d.key === 'SOLO')!.verificationGrid.usb?.status).toBe(
+        'unverified',
+      );
     });
   });
 
