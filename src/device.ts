@@ -415,6 +415,24 @@ export interface DeviceEntry {
    * falls back to legacy `support.status`.
    */
   verifications?: DeviceVerifications;
+
+  /**
+   * In-protocol model identifier(s) reported by the device itself in
+   * response to a driver-specific identity query. Used by transport-
+   * agnostic autodetect: open the wire, ask the printer who it is,
+   * look up by code.
+   *
+   * Niimbot today is the only consumer: chassis reply to
+   * `PrinterInfo(0x08)` (= `PrinterModelId`) with a 1- or 2-byte BE
+   * integer, matched against this field by `findDeviceByPrinterCode`.
+   * Codes mirror niimbluelib's `modelsLibrary`; a chassis may report
+   * any of several IDs (e.g. D110 → `[2304, 2305]`), so the field
+   * accepts a single code or an array.
+   *
+   * Brother / Dymo / cat-printer have no equivalent in-protocol query
+   * and leave this absent — they autodetect via USB VID/PID instead.
+   */
+  printerCode?: number | readonly number[];
 }
 
 /**
