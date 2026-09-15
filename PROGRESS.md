@@ -123,3 +123,17 @@ Tracks completion of the steps in `PLAN.md` §9.
 - [x] Bump self to `0.3.1`
 - [x] Gates green (typecheck, lint, test, build)
 
+
+## Step 11 — Network identity fields (plan 17, contracts step 1)
+
+> Plan: `~/thermal-label/plans/backlog/17-network-discovery-snmp.md`
+> (D3, D4, D7). Additive optionals so drivers can identify, list and
+> re-open network printers via SNMP without parsing `connectionId`.
+
+- [x] `src/device.ts` — `DeviceEntry.modelNames?` (wire model strings; defaults to `[name]`)
+- [x] `src/discovery.ts` — `DiscoveredPrinter.host?` / `port?`, `PrinterDiscovery.listMedia?()`, `OpenOptions.snmpCommunity?`; `deviceKey` docblock covers the network case
+- [x] `src/status.ts` — `PrintOptions.confirm?` (out-of-band print confirmation; the CLI passes `false` when status is unavailable)
+- [x] `src/__tests__/types.test.ts` — assertions for the new shape
+- [x] `docs/api` regenerated
+- [x] Bump self to `0.6.2` (patch on purpose: drivers pin `^0.6.x`)
+- [x] Gates green (typecheck, lint, prettier, test:coverage, build)

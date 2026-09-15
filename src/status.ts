@@ -38,6 +38,16 @@ export interface PrintOptions {
    * sentinel.
    */
   engine?: string;
+
+  /**
+   * Confirm the job out-of-band after sending, on transports that give
+   * no feedback themselves (e.g. a write-only port 9100 checked via the
+   * SNMP page counter). Default `true`. Pass `false` when the
+   * confirmation channel is known to be unavailable; the driver then
+   * sends blind and resolves once the bytes are out. Drivers whose
+   * transport reports completion ignore it.
+   */
+  confirm?: boolean;
 }
 
 /**
