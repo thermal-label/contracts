@@ -14,6 +14,24 @@ packages to auto-detect printers regardless of family.
 
 ## Methods
 
+### listMedia()?
+
+```ts
+optional listMedia(): readonly MediaDescriptor[];
+```
+
+The driver's media registry, for callers that must let a user pick
+media by id or name instead of relying on `getStatus().detectedMedia`
+(a CLI `--media` flag; network printers whose media cannot be
+detected). Optional: drivers without a media catalog omit it, and
+callers report "driver <family> does not expose a media catalog".
+
+#### Returns
+
+readonly [`MediaDescriptor`](MediaDescriptor.md)[]
+
+***
+
 ### listPrinters()
 
 ```ts

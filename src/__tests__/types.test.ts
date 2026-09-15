@@ -240,6 +240,10 @@ describe('device shapes', () => {
   it('DeviceRegistry pins schemaVersion to 1', () => {
     expectTypeOf<DeviceRegistry['schemaVersion']>().toEqualTypeOf<1>();
   });
+
+  it('DeviceEntry.modelNames is optional readonly string[]', () => {
+    expectTypeOf<DeviceEntry['modelNames']>().toEqualTypeOf<readonly string[] | undefined>();
+  });
 });
 
 describe('discovery shapes', () => {
@@ -263,6 +267,45 @@ describe('discovery shapes', () => {
     expectTypeOf<PrinterDiscovery>().toHaveProperty('family');
     expectTypeOf<PrinterDiscovery>().toHaveProperty('listPrinters');
     expectTypeOf<PrinterDiscovery>().toHaveProperty('openPrinter');
+  });
+
+  it('DiscoveredPrinter.host / port are optional', () => {
+    expectTypeOf<DiscoveredPrinter['host']>().toEqualTypeOf<string | undefined>();
+    expectTypeOf<DiscoveredPrinter['port']>().toEqualTypeOf<number | undefined>();
+  });
+
+  it('a USB DiscoveredPrinter needs no host / port', () => {
+    expectTypeOf<{
+      device: DeviceEntry;
+      transport: 'usb';
+      connectionId: string;
+    }>().toExtend<DiscoveredPrinter>();
+  });
+
+  it('OpenOptions.snmpCommunity is optional string', () => {
+    expectTypeOf<OpenOptions['snmpCommunity']>().toEqualTypeOf<string | undefined>();
+  });
+
+  it('OpenOptions accepts a host + deviceKey + snmpCommunity triple', () => {
+    expectTypeOf<{
+      host: string;
+      deviceKey: string;
+      snmpCommunity: string;
+    }>().toExtend<OpenOptions>();
+  });
+
+  it('PrinterDiscovery.listMedia is optional and returns readonly MediaDescriptor[]', () => {
+    expectTypeOf<PrinterDiscovery['listMedia']>().toEqualTypeOf<
+      (() => readonly MediaDescriptor[]) | undefined
+    >();
+  });
+
+  it('a PrinterDiscovery without listMedia still satisfies the interface', () => {
+    expectTypeOf<{
+      readonly family: string;
+      listPrinters(): Promise<DiscoveredPrinter[]>;
+      openPrinter(options?: OpenOptions): Promise<PrinterAdapter>;
+    }>().toExtend<PrinterDiscovery>();
   });
 });
 

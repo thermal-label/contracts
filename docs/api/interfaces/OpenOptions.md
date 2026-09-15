@@ -10,10 +10,11 @@ fields to narrow the match.
 | Property | Type | Description |
 | ------ | ------ | ------ |
 | <a id="property-baudrate"></a> `baudRate?` | `number` | Serial baud rate. Default 9600. Ignored for RFCOMM / Bluetooth SPP (the underlying link handles flow control) but required by the serialport and Web Serial APIs. |
-| <a id="property-devicekey"></a> `deviceKey?` | `string` | Registry key of the device descriptor to use. Required by drivers when the transport carries no model signal (serial / RFCOMM); ignored when the transport enumerates (USB / TCP / mDNS). Each driver matches the key against its own registry — pass `'LW_330'` to the labelwriter driver, `'QL_820NWB'` to the Brother driver, etc. Unknown keys behave like any other "no match" — `openPrinter` throws. |
+| <a id="property-devicekey"></a> `deviceKey?` | `string` | Registry key of the device descriptor to use. Required by drivers when the transport carries no model signal (serial / RFCOMM) and when a network printer cannot be identified (no SNMP answer, or a model the driver's registry does not list); ignored when the transport enumerates (USB). When given on a network open it wins over identification: the driver uses this descriptor and asks the printer nothing. Each driver matches the key against its own registry — pass `'LW_330'` to the labelwriter driver, `'QL_820NWBc'` to the Brother driver, etc. Unknown keys behave like any other "no match" — `openPrinter` throws. |
 | <a id="property-host"></a> `host?` | `string` | TCP host (IP or hostname). |
 | <a id="property-pid"></a> `pid?` | `number` | Match by USB Product ID. |
 | <a id="property-port"></a> `port?` | `number` | TCP port. Default 9100. |
 | <a id="property-serialnumber"></a> `serialNumber?` | `string` | Match by USB / mDNS serial number. |
 | <a id="property-serialpath"></a> `serialPath?` | `string` | Serial port path. Examples: `/dev/rfcomm0` (Linux, Bluetooth SPP), `/dev/ttyUSB0` (Linux, USB-serial adapter), `COM3` (Windows). |
+| <a id="property-snmpcommunity"></a> `snmpCommunity?` | `string` | SNMP community used to identify and read status from a network printer. Default `'public'`. Only meaningful with `host`; drivers pass it through to the SNMP helpers in `@thermal-label/transport`. |
 | <a id="property-vid"></a> `vid?` | `number` | Match by USB Vendor ID. |

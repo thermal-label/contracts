@@ -1,5 +1,6 @@
 import type { PrinterAdapter } from './adapter.js';
 import type { DeviceEntry, TransportType } from './device.js';
+import type { MediaDescriptor } from './media.js';
 
 /**
  * A printer that was discovered on one of the supported transports.
@@ -21,9 +22,21 @@ export interface DiscoveredPrinter {
   /**
    * Transport-specific connection identifier. Opaque to consumers — a
    * USB device path, a TCP `host:port`, or a BLE address, depending on
-   * transport.
+   * transport. Never parse it; for network printers use `host` /
+   * `port` instead.
    */
   connectionId: string;
+
+  /**
+   * Network address the printer was discovered at. Set for
+   * network-discovered printers (`transport: 'tcp'`) so callers can
+   * re-open with `openPrinter({ host, port, deviceKey: device.key })`
+   * without a second identification round trip.
+   */
+  host?: string;
+
+  /** TCP port that goes with `host`; the registry entry's `transports.tcp.port`. */
+  port?: number;
 }
 
 /**
@@ -63,15 +76,26 @@ export interface OpenOptions {
 
   /**
    * Registry key of the device descriptor to use. Required by drivers
-   * when the transport carries no model signal (serial / RFCOMM); ignored
-   * when the transport enumerates (USB / TCP / mDNS).
+   * when the transport carries no model signal (serial / RFCOMM) and
+   * when a network printer cannot be identified (no SNMP answer, or a
+   * model the driver's registry does not list); ignored when the
+   * transport enumerates (USB). When given on a network open it wins
+   * over identification: the driver uses this descriptor and asks the
+   * printer nothing.
    *
    * Each driver matches the key against its own registry — pass
-   * `'LW_330'` to the labelwriter driver, `'QL_820NWB'` to the Brother
+   * `'LW_330'` to the labelwriter driver, `'QL_820NWBc'` to the Brother
    * driver, etc. Unknown keys behave like any other "no match" —
    * `openPrinter` throws.
    */
   deviceKey?: string;
+
+  /**
+   * SNMP community used to identify and read status from a network
+   * printer. Default `'public'`. Only meaningful with `host`; drivers
+   * pass it through to the SNMP helpers in `@thermal-label/transport`.
+   */
+  snmpCommunity?: string;
 }
 
 /**
@@ -94,6 +118,15 @@ export interface PrinterDiscovery {
    * If no options are provided, opens the first available printer.
    */
   openPrinter(options?: OpenOptions): Promise<PrinterAdapter>;
+
+  /**
+   * The driver's media registry, for callers that must let a user pick
+   * media by id or name instead of relying on `getStatus().detectedMedia`
+   * (a CLI `--media` flag; network printers whose media cannot be
+   * detected). Optional: drivers without a media catalog omit it, and
+   * callers report "driver <family> does not expose a media catalog".
+   */
+  listMedia?(): readonly MediaDescriptor[];
 }
 
 /**

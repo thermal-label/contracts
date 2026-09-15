@@ -366,6 +366,30 @@ export interface DeviceEntry {
   /** Human-readable model name, e.g. `'LabelWriter 450'`. */
   name: string;
 
+  /**
+   * Self-reported identity, network-management side: the model
+   * strings the device reports about itself, without vendor prefix.
+   * Sources are the IEEE-1284 device ID `MDL:` field, mDNS TXT
+   * `usb_MDL`, IPP `printer-device-id`, and SNMP `hrDeviceDescr` /
+   * `sysDescr`; the vendor word in front of them (`Brother QL-820NWB`)
+   * is stripped by the matcher, not stored here.
+   *
+   * Defaults to `[name]`. Set it only when the marketing name differs
+   * from the wire name: Brother reports `QL-820NWB` for the entry
+   * named `QL-820NWBc`, so that entry carries
+   * `modelNames: ['QL-820NWB', 'QL-820NWBc']`. Matching is by whole
+   * token, longest candidate first, so `QL-800` never matches a
+   * `QL-8000`-style longer name. Consumed by
+   * `matchModelName` in `@thermal-label/transport`.
+   *
+   * A sibling field for the *wire-protocol* side (the model code a
+   * printer answers with to a driver-specific identity query, e.g.
+   * niimbot's `PrinterInfo(0x08)`) is a separate concern and lands as
+   * its own field when a driver needs it; do not encode numeric
+   * protocol codes here.
+   */
+  modelNames?: readonly string[];
+
   /** Driver family this device belongs to, e.g. `'labelwriter'`. */
   family: string;
 
