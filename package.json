@@ -1,6 +1,6 @@
 {
   "name": "@thermal-label/contracts",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Shared types and interfaces for thermal-label printer drivers",
   "keywords": [
     "thermal-label",
