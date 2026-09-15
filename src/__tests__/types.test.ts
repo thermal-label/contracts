@@ -114,6 +114,10 @@ describe('structural compatibility', () => {
   it('PrintOptions.engine is optional string', () => {
     expectTypeOf<PrintOptions['engine']>().toEqualTypeOf<string | undefined>();
   });
+
+  it('PrintOptions.confirm is optional boolean', () => {
+    expectTypeOf<PrintOptions['confirm']>().toEqualTypeOf<boolean | undefined>();
+  });
 });
 
 describe('preview shapes', () => {
