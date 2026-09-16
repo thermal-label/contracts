@@ -137,3 +137,4 @@ Tracks completion of the steps in `PLAN.md` §9.
 - [x] `docs/api` regenerated
 - [x] Bump self to `0.6.2` (patch on purpose: drivers pin `^0.6.x`)
 - [x] Gates green (typecheck, lint, prettier, test:coverage, build)
+- [x] `0.6.3` — `listMedia` docblock: the `driver <family> …` sentence moved into a code span; typedoc emitted it raw and the docs site's VitePress build died on the bare `<family>` in both the contracts page and every implementing driver's inherited page
